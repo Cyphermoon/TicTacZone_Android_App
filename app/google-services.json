@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "893956492347",
+    "project_id": "tic-tac-zone-f335a",
+    "storage_bucket": "tic-tac-zone-f335a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:893956492347:android:c4b511df2b6a4870b7a01e",
+        "android_client_info": {
+          "package_name": "com.cyphermoon.tictaczone"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "893956492347-fbj0o1kmk4qrb8j1amt5gf2boff82c02.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.cyphermoon.tictaczone",
+            "certificate_hash": "b8e97a08b93f1e2c7d8133e725630379db83ca6a"
+          }
+        },
+        {
+          "client_id": "893956492347-ch6pmvt8li1jmo7s59378ru5e99bplj5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAgPSN5ttvALlSH7uEcZYKBK9GhEFxlWEc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "893956492347-ch6pmvt8li1jmo7s59378ru5e99bplj5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
