@@ -16,10 +16,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.cyphermoon.tictaczone.presentation.auth_flow.LoginScreen
-import com.cyphermoon.tictaczone.presentation.MainScreen
+import com.cyphermoon.tictaczone.presentation.main.MainScreen
 import com.cyphermoon.tictaczone.presentation.auth_flow.AuthStateViewModel
 import com.cyphermoon.tictaczone.presentation.auth_flow.GoogleAuthenticator
-import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
 @Composable
@@ -44,7 +43,7 @@ fun AppNavigator() {
         // When the route matches ScreenRoutes.MainScreen.route, the MainScreen composable will be displayed
         composable(ScreenRoutes.MainScreen.route) {
 
-            MainScreen(navController = navController)
+            MainScreen(navController = navController, userData=googleAuthUiClient.getSignedInUser())
         }
         composable(ScreenRoutes.LoginScreen.route) {
             val viewModel = viewModel<AuthStateViewModel>()
