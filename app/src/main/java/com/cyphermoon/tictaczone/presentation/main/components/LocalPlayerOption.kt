@@ -1,5 +1,6 @@
 package com.cyphermoon.tictaczone.presentation.main.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -8,7 +9,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -18,10 +21,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.cyphermoon.tictaczone.presentation.main.data_class.LocalPlayersProps
 import com.cyphermoon.tictaczone.presentation.main.data_class.Player
+import com.cyphermoon.tictaczone.ui.theme.Accent
+import com.cyphermoon.tictaczone.ui.theme.Primary
 
 @Composable
 fun LocalOption(handleLocalPlayerStart: ((LocalPlayersProps) -> Unit)?) {
@@ -40,7 +46,7 @@ fun LocalOption(handleLocalPlayerStart: ((LocalPlayersProps) -> Unit)?) {
         modifier = Modifier
             .border(
                 width = 2.dp,
-                color = Color.DarkGray,
+                color = Color.LightGray,
                 shape = RoundedCornerShape(8.dp)
             )
             .padding(16.dp)
@@ -51,8 +57,11 @@ fun LocalOption(handleLocalPlayerStart: ((LocalPlayersProps) -> Unit)?) {
             player = player2,
             handleNameChange = handlePlayer2NameChange
         )
-        Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = handleSubmit, modifier = Modifier.fillMaxWidth()) {
+        Button(
+            onClick = handleSubmit,
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(containerColor = Accent)
+        ) {
             Text(text = "Start Game")
         }
     }
@@ -61,14 +70,23 @@ fun LocalOption(handleLocalPlayerStart: ((LocalPlayersProps) -> Unit)?) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlayerInput(id: String, label: String, player: Player, handleNameChange: (String) -> Unit) {
-    Column {
+    Column (
+        modifier = Modifier.padding(bottom=20.dp)
+    ){
         Text(text = label, modifier = Modifier.padding(bottom = 8.dp))
         TextField(
             value = player.name,
             onValueChange = handleNameChange,
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(8.dp)),
             singleLine = true,
-            colors = TextFieldDefaults.textFieldColors(containerColor = Color.Transparent)
+            placeholder = { Text(text = "Enter Player 2 Name")},
+            colors = TextFieldDefaults.textFieldColors(
+                containerColor = MaterialTheme.colorScheme.primary,
+                focusedIndicatorColor = MaterialTheme.colorScheme.primary,
+                unfocusedIndicatorColor = MaterialTheme.colorScheme.primary
+            )
         )
     }
 }

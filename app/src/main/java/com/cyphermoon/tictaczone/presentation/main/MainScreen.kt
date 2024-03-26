@@ -3,6 +3,7 @@ package com.cyphermoon.tictaczone.presentation.main
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
@@ -35,11 +36,13 @@ fun MainScreen(navController: NavController, userData: FirebaseUserData?) {
     Column(
         modifier=
         Modifier
-            .fillMaxHeight()
-            .padding(5.dp)
+            .fillMaxSize()
+            .padding(16.dp)
     ) {
         Logo(name = null)
+
         Spacer(modifier = Modifier.height(10.dp))
+
         ProfileStatsCard(
             matches = 10,
             name = "John Doe",
@@ -49,7 +52,7 @@ fun MainScreen(navController: NavController, userData: FirebaseUserData?) {
             online = true,
             id = "adamq"
         )
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(26.dp))
 
         LocalOption(handleLocalPlayerStart = null)
     }
