@@ -29,7 +29,9 @@ data class LocalPlayConfig (
 )
 
 data class Player(
-    var name: String = ""
+    var name: String = "",
+    var id: String = "",
+    var mark: String = "O"
 )
 
 data class LocalPlayersProps(

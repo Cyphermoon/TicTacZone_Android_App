@@ -41,5 +41,6 @@ data class PlayerProps(
     var loss: Int = 0,
     var email: String = "",
     var imageUrl: String? = null,
-    var online: Boolean = false
+    var online: Boolean = false,
+    val mark: String = "X"
 )

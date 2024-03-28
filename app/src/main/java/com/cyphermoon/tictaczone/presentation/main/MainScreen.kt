@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.cyphermoon.tictaczone.ScreenRoutes
 import com.cyphermoon.tictaczone.presentation.main.components.Logo
 import com.cyphermoon.tictaczone.presentation.main.components.ProfileStatsCard
 import com.cyphermoon.tictaczone.presentation.auth_flow.FirebaseUserData
@@ -47,10 +48,11 @@ fun MainScreen(navController: NavController, userData: FirebaseUserData?) {
 
     fun handleLocalPlayerUpdateConfig (player2: Player): Unit{
         store.dispatch(localPlayActions.updatePlayers(LocalPlayersProps(player1 = userState, player2 = player2)))
+        navController.navigate(ScreenRoutes.ConfigScreen.route)
     }
 
      //Subscribe to the store
-    DisposableEffect(key1 = store) {
+    DisposableEffect(key1 = store.getState().user) {
         val unsubscribe = store.subscribe {
             userState = store.getState().user
         }

@@ -34,7 +34,7 @@ fun LocalOption(handleUpdateLocalPlayerConfig: (player2: Player) -> Unit?) {
 
     val handleSubmit: () -> Unit = {
         if (handleUpdateLocalPlayerConfig != null) {
-            handleUpdateLocalPlayerConfig(player2)
+            handleUpdateLocalPlayerConfig(player2.copy(id = "player2"))
             handlePlayer2NameChange("")
         }
     }
@@ -49,7 +49,6 @@ fun LocalOption(handleUpdateLocalPlayerConfig: (player2: Player) -> Unit?) {
             .padding(16.dp)
     ) {
         PlayerInput(
-            id = "player2",
             label = "Player 2",
             player = player2,
             handleNameChange = handlePlayer2NameChange
@@ -66,7 +65,7 @@ fun LocalOption(handleUpdateLocalPlayerConfig: (player2: Player) -> Unit?) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PlayerInput(id: String, label: String, player: Player, handleNameChange: (String) -> Unit) {
+fun PlayerInput( label: String, player: Player, handleNameChange: (String) -> Unit) {
     Column (
         modifier = Modifier.padding(bottom=20.dp)
     ){
