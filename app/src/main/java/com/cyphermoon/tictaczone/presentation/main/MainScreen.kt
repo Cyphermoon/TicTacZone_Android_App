@@ -2,7 +2,6 @@ package com.cyphermoon.tictaczone.presentation.main
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -22,8 +21,21 @@ import com.cyphermoon.tictaczone.presentation.main.components.ProfileStatsCard
 import com.cyphermoon.tictaczone.presentation.auth_flow.FirebaseUserData
 import com.cyphermoon.tictaczone.presentation.auth_flow.GoogleAuthenticator
 import com.cyphermoon.tictaczone.presentation.main.components.LocalOption
+import com.cyphermoon.tictaczone.redux.LocalPlayersProps
+import com.cyphermoon.tictaczone.redux.Player
+import com.cyphermoon.tictaczone.redux.localPlayActions
 import com.cyphermoon.tictaczone.redux.store
 
+
+// A logout button
+//  Button(onClick = {
+//    coroutineScope.launch {
+//      googleAuthUIClient.signOut()
+//      navController.navigate(ScreenRoutes.LoginScreen.route)
+//    }
+//  }) {
+//    Text(text = "Logout")
+//  }
 
 @Composable
 fun MainScreen(navController: NavController, userData: FirebaseUserData?) {
@@ -32,15 +44,10 @@ fun MainScreen(navController: NavController, userData: FirebaseUserData?) {
 
 
     var userState by remember { mutableStateOf(store.getState().user) }
-    // A logout button
-    //  Button(onClick = {
-    //    coroutineScope.launch {
-    //      googleAuthUIClient.signOut()
-    //      navController.navigate(ScreenRoutes.LoginScreen.route)
-    //    }
-    //  }) {
-    //    Text(text = "Logout")
-    //  }
+
+    fun handleLocalPlayerUpdateConfig (player2: Player): Unit{
+        store.dispatch(localPlayActions.updatePlayers(LocalPlayersProps(player1 = userState, player2 = player2)))
+    }
 
      //Subscribe to the store
     DisposableEffect(key1 = store) {
@@ -75,6 +82,6 @@ fun MainScreen(navController: NavController, userData: FirebaseUserData?) {
         )
         Spacer(modifier = Modifier.height(26.dp))
 
-        LocalOption(handleLocalPlayerStart = null)
+     LocalOption { player -> handleLocalPlayerUpdateConfig(player) }
     }
 }

@@ -27,7 +27,7 @@ class userSlice {
 }
 
 // Actions related to the user
-class userActions {
+sealed class userActions {
     data class updateUser(val user: PlayerProps)
 }
 

@@ -22,6 +22,7 @@ import com.cyphermoon.tictaczone.presentation.auth_flow.LoginScreen
 import com.cyphermoon.tictaczone.presentation.main.MainScreen
 import com.cyphermoon.tictaczone.presentation.auth_flow.AuthStateViewModel
 import com.cyphermoon.tictaczone.presentation.auth_flow.GoogleAuthenticator
+import com.cyphermoon.tictaczone.presentation.config_flow.composables.ConfigScreen
 import com.cyphermoon.tictaczone.redux.store
 import com.cyphermoon.tictaczone.redux.userActions
 import kotlinx.coroutines.launch
@@ -66,6 +67,10 @@ fun AppNavigator() {
         composable(ScreenRoutes.MainScreen.route) {
 
             MainScreen(navController = navController, userData=googleAuthUiClient.getSignedInUser())
+        }
+        // A composable function for Config Screen
+        composable(ScreenRoutes.ConfigScreen.route){
+            ConfigScreen(navController = navController)
         }
         composable(ScreenRoutes.LoginScreen.route) {
             val viewModel = viewModel<AuthStateViewModel>()

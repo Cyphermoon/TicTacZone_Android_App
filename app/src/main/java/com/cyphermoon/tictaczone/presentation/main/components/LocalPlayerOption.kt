@@ -1,11 +1,8 @@
 package com.cyphermoon.tictaczone.presentation.main.components
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -24,13 +21,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.cyphermoon.tictaczone.presentation.main.data_class.LocalPlayersProps
-import com.cyphermoon.tictaczone.presentation.main.data_class.Player
+import com.cyphermoon.tictaczone.redux.Player
 import com.cyphermoon.tictaczone.ui.theme.Accent
-import com.cyphermoon.tictaczone.ui.theme.Primary
 
 @Composable
-fun LocalOption(handleLocalPlayerStart: ((LocalPlayersProps) -> Unit)?) {
+fun LocalOption(handleUpdateLocalPlayerConfig: (player2: Player) -> Unit?) {
     var player2 by remember { mutableStateOf(Player(name = "")) }
 
     val handlePlayer2NameChange: (String) -> Unit = { newValue ->
@@ -38,8 +33,10 @@ fun LocalOption(handleLocalPlayerStart: ((LocalPlayersProps) -> Unit)?) {
     }
 
     val handleSubmit: () -> Unit = {
-        val localPlayers = LocalPlayersProps(player2 = player2)
-//        handleLocalPlayerStart(localPlayers)
+        if (handleUpdateLocalPlayerConfig != null) {
+            handleUpdateLocalPlayerConfig(player2)
+            handlePlayer2NameChange("")
+        }
     }
 
     Column(
