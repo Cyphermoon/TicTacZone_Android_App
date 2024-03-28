@@ -66,6 +66,12 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycle_version")
     //Coil
     implementation("io.coil-kt:coil-compose:2.6.0")
+    //redux
+    implementation("org.reduxkotlin:redux-kotlin-threadsafe-android:0.6.1")
+    //redux-thunk
+    implementation("org.reduxkotlin:redux-kotlin-thunk-android:0.6.0")
+    //redux-kotlin-compose
+    implementation("org.reduxkotlin:redux-kotlin-thunk-android:0.6.0")
     //Native dependencies
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

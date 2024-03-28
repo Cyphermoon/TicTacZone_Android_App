@@ -1,6 +1,8 @@
 package com.cyphermoon.tictaczone
 
 import android.app.Activity.RESULT_OK
+import android.icu.number.NumberFormatter.UnitWidth
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.IntentSenderRequest
@@ -15,10 +17,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.cyphermoon.tictaczone.data.UserRepository
 import com.cyphermoon.tictaczone.presentation.auth_flow.LoginScreen
 import com.cyphermoon.tictaczone.presentation.main.MainScreen
 import com.cyphermoon.tictaczone.presentation.auth_flow.AuthStateViewModel
 import com.cyphermoon.tictaczone.presentation.auth_flow.GoogleAuthenticator
+import com.cyphermoon.tictaczone.redux.store
+import com.cyphermoon.tictaczone.redux.userActions
 import kotlinx.coroutines.launch
 
 @Composable
@@ -36,9 +41,26 @@ fun AppNavigator() {
 
     val coroutineScope = rememberCoroutineScope()
 
+    val userRepository = UserRepository()
+
+    // get custom user profile from firestore using signed in Id
+    LaunchedEffect(key1 = Unit) {
+        val user = googleAuthUiClient.getSignedInUser()
+        if (user != null) {
+            userRepository.listenForUserUpdates(userId = user.uid) { userProps ->
+                Log.v("UserProps", userProps.toString())
+
+                if (userProps != null) {
+                    store.dispatch(userActions.updateUser(userProps))
+                }
+            }
+        }
+    }
+
     // The NavHost is a composable that contains all of the destinations in this app
     // It takes in the NavController and the route of the start destination
     NavHost(navController = navController, startDestination = ScreenRoutes.LoginScreen.route) {
+
         // A composable function for the MainScreen
         // When the route matches ScreenRoutes.MainScreen.route, the MainScreen composable will be displayed
         composable(ScreenRoutes.MainScreen.route) {

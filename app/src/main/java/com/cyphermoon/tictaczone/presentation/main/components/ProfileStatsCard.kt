@@ -24,12 +24,24 @@ import androidx.compose.ui.unit.sp
 import kotlin.math.roundToInt
 
 @Composable
-fun ProfileStatsCard(matches: Int, name: String, win: Int, loss: Int, handleChallenge: (() -> Unit)?, online: Boolean, id:String) {
-  var percentage = (win.toDouble() / matches.toDouble() * 100).roundToInt()
+fun ProfileStatsCard(
+    matches: Int,
+    name: String,
+    win: Int,
+    loss: Int,
+    handleChallenge: (() -> Unit)?,
+    online: Boolean,
+    id: String
+) {
+    var percentage = if (matches != 0) {
+        (win.toDouble() / matches.toDouble() * 100).roundToInt()
+    } else {
+        0
+    }
 
-  if (percentage.toDouble().isNaN()){
-    percentage = 0
-  }
+    if (percentage.toDouble().isNaN()) {
+        percentage = 0
+    }
 
     Column(
         modifier = Modifier
@@ -64,7 +76,7 @@ fun ProfileStatsCard(matches: Int, name: String, win: Int, loss: Int, handleChal
                 onClick = handleChallenge,
                 enabled = online,
                 modifier = Modifier.fillMaxWidth(),
-                colors= ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary)
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary)
             ) {
                 Text(text = "Challenge")
             }
@@ -83,7 +95,7 @@ fun StatsInfo(title: String, value: String) {
     }
 }
 
-@Preview(showBackground=true)
+@Preview(showBackground = true)
 @Composable
 fun ProfileStatsCardPreview() {
     ProfileStatsCard(
