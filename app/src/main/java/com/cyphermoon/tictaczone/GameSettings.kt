@@ -7,7 +7,6 @@ data class BoardType(
 )
 
 data class GameConfigType(
-    val boardType: List<BoardType>,
     val currentBoardType: BoardType,
     val timer: Int,
     val totalRounds: Int,
@@ -15,15 +14,23 @@ data class GameConfigType(
     val distortedMode: Boolean,
     val revealMode: Boolean
 )
-val DEFAULT_GAME_CONFIG = GameConfigType(
+
+data class AllGameBoardData(
+    val boardType: List<BoardType>
+)
+
+val ALL_GAME_BOARD = AllGameBoardData(
     boardType = listOf(
         BoardType(
             dimension = "3",
             value = "3x3 Board",
             id = "3x3"
-        )
-        // Add more board types here if needed
-    ),
+        ),
+    )
+)
+
+
+val DEFAULT_GAME_CONFIG = GameConfigType(
     currentBoardType = BoardType(
         dimension = "3",
         value = "3x3 Board",

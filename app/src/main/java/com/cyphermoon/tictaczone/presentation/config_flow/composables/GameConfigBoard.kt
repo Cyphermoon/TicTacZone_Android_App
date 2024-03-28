@@ -38,6 +38,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.cyphermoon.tictaczone.ALL_GAME_BOARD
 import com.cyphermoon.tictaczone.BoardType
 import com.cyphermoon.tictaczone.DEFAULT_GAME_CONFIG
 import com.cyphermoon.tictaczone.GameConfigType
@@ -107,7 +108,7 @@ fun GameConfigBoard(
                 expanded = isDropdownMenuExpanded.value,
                 onDismissRequest = { isDropdownMenuExpanded.value = false }
             ) {
-                DEFAULT_GAME_CONFIG.boardType.forEach { type ->
+                ALL_GAME_BOARD.boardType.forEach { type ->
                     DropdownMenuItem(
                         text = { Text(text = type.value) },
                         onClick = {
@@ -130,7 +131,7 @@ fun GameConfigBoard(
                 modifier = Modifier
                     .clip(RoundedCornerShape(8.dp)),
                 value = game.timer.toString(),
-                onValueChange = { onTimerChange(it.toInt()) },
+                onValueChange = { if (it.isNotEmpty()) onTimerChange(it.toInt()) else onTimerChange(0) },
                 enabled = mode == ViewModeType.EDIT,
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -153,7 +154,7 @@ fun GameConfigBoard(
                 modifier = Modifier
                     .clip(RoundedCornerShape(8.dp)),
                 value = game.roundsToWin.toString(),
-                onValueChange = { onRoundsToWinChange(it.toInt()) },
+                onValueChange = { if (it.isNotEmpty()) onRoundsToWinChange(it.toInt()) else onRoundsToWinChange(0) },
                 enabled = mode == ViewModeType.EDIT,
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -206,7 +207,6 @@ fun PreviewGameConfigBoard() {
     )
 
     val dummyGameConfig = GameConfigType(
-        boardType = listOf(dummyBoardType),
         currentBoardType = dummyBoardType,
         timer = 10,
         totalRounds = 3,

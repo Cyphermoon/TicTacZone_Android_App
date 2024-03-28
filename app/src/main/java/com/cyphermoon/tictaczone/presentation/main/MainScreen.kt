@@ -24,7 +24,7 @@ import com.cyphermoon.tictaczone.presentation.auth_flow.GoogleAuthenticator
 import com.cyphermoon.tictaczone.presentation.main.components.LocalOption
 import com.cyphermoon.tictaczone.redux.LocalPlayersProps
 import com.cyphermoon.tictaczone.redux.Player
-import com.cyphermoon.tictaczone.redux.localPlayActions
+import com.cyphermoon.tictaczone.redux.LocalPlayActions
 import com.cyphermoon.tictaczone.redux.store
 
 
@@ -47,7 +47,7 @@ fun MainScreen(navController: NavController, userData: FirebaseUserData?) {
     var userState by remember { mutableStateOf(store.getState().user) }
 
     fun handleLocalPlayerUpdateConfig (player2: Player): Unit{
-        store.dispatch(localPlayActions.updatePlayers(LocalPlayersProps(player1 = userState, player2 = player2)))
+        store.dispatch(LocalPlayActions.UpdatePlayers(LocalPlayersProps(player1 = userState, player2 = player2)))
         navController.navigate(ScreenRoutes.ConfigScreen.route)
     }
 
