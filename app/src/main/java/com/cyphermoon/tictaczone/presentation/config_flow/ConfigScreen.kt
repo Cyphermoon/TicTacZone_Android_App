@@ -1,4 +1,4 @@
-package com.cyphermoon.tictaczone.presentation.config_flow.composables
+package com.cyphermoon.tictaczone.presentation.config_flow
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -16,12 +16,16 @@ import androidx.navigation.NavController
 import com.cyphermoon.tictaczone.ALL_GAME_BOARD
 import com.cyphermoon.tictaczone.BoardType
 import com.cyphermoon.tictaczone.GameConfigType
+import com.cyphermoon.tictaczone.ScreenRoutes
+import com.cyphermoon.tictaczone.presentation.config_flow.composables.GameConfigBoard
+import com.cyphermoon.tictaczone.presentation.config_flow.composables.VersusPlayerCard
+import com.cyphermoon.tictaczone.presentation.config_flow.composables.ViewModeType
 import com.cyphermoon.tictaczone.redux.LocalPlayActions
 import com.cyphermoon.tictaczone.redux.store
 
 
 @Composable
-fun ConfigScreen(navController: NavController?) {
+fun ConfigScreen(navController: NavController) {
     var players by remember { mutableStateOf(store.getState().localPlay.players) }
     var gameConfig by remember { mutableStateOf(store.getState().localPlay.gameConfig)}
 
@@ -93,7 +97,7 @@ fun ConfigScreen(navController: NavController?) {
         GameConfigBoard(
             game = gameConfig ?: dummyGameConfig,
             mode = ViewModeType.EDIT,
-            onGameStart = {},
+            onGameStart = { navController.navigate(ScreenRoutes.GameScreen.route)},
             onTimerChange = ::handleTimerChange,
             onRoundsToWinChange = ::handleRoundsToWinChange,
             onDistortedModeChange = ::handleDistortedModeChange,

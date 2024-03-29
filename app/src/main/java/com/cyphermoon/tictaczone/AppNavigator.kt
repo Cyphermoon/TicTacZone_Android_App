@@ -1,7 +1,6 @@
 package com.cyphermoon.tictaczone
 
 import android.app.Activity.RESULT_OK
-import android.icu.number.NumberFormatter.UnitWidth
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -22,7 +21,8 @@ import com.cyphermoon.tictaczone.presentation.auth_flow.LoginScreen
 import com.cyphermoon.tictaczone.presentation.main.MainScreen
 import com.cyphermoon.tictaczone.presentation.auth_flow.AuthStateViewModel
 import com.cyphermoon.tictaczone.presentation.auth_flow.GoogleAuthenticator
-import com.cyphermoon.tictaczone.presentation.config_flow.composables.ConfigScreen
+import com.cyphermoon.tictaczone.presentation.config_flow.ConfigScreen
+import com.cyphermoon.tictaczone.presentation.game_flow.GameScreen
 import com.cyphermoon.tictaczone.redux.store
 import com.cyphermoon.tictaczone.redux.userActions
 import kotlinx.coroutines.launch
@@ -65,13 +65,16 @@ fun AppNavigator() {
         // A composable function for the MainScreen
         // When the route matches ScreenRoutes.MainScreen.route, the MainScreen composable will be displayed
         composable(ScreenRoutes.MainScreen.route) {
-
             MainScreen(navController = navController, userData=googleAuthUiClient.getSignedInUser())
         }
         // A composable function for Config Screen
         composable(ScreenRoutes.ConfigScreen.route){
             ConfigScreen(navController = navController)
         }
+        // A composable function for Game Screen
+        composable(ScreenRoutes.GameScreen.route){
+            GameScreen(navController=navController)
+            }
         composable(ScreenRoutes.LoginScreen.route) {
             val viewModel = viewModel<AuthStateViewModel>()
             val state by viewModel.state.collectAsStateWithLifecycle()
