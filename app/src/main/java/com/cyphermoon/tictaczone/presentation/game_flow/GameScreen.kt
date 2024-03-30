@@ -33,7 +33,13 @@ fun GameScreen() {
     var localPlay by remember { mutableStateOf(store.getState().localPlay) }
     var timerPercentage = (localPlay.countdown.toDouble() / localPlay.gameConfig!!.timer.toDouble() * 100).roundToInt()
 
-    DisposableEffect(key1 = store.getState().localPlay) {
+
+    fun handleCellClicked(position: String) {
+        val newBoard = localPlay.board.toMutableMap()
+        newBoard[position] = localPlay.currentPlayer?.mark ?: ""
+        store.dispatch(LocalPlayActions.UpdateBoard(newBoard))
+    }
+    DisposableEffect(key1 = store.getState().localPlay, key2 = store.getState().localPlay.board) {
         val unsubscribe = store.subscribe {
             // Update localPlay state whenever the state in the store changes
             localPlay = store.getState().localPlay
@@ -43,12 +49,6 @@ fun GameScreen() {
             // Unsubscribe when the composable is disposed
             unsubscribe()
         }
-    }
-
-    LaunchedEffect(key1 = store.getState().localPlay) {
-        Log.v("Countdown Value", "$timerPercentage")
-        Log.v("Counnt down", localPlay.countdown.toString())
-        Log.v("Game Config value", localPlay.gameConfig!!.timer.toString())
     }
 
     Column(
@@ -73,7 +73,7 @@ fun GameScreen() {
                 TicTacToeBoard(
                     label = "Tic Tac Toe",
                     board = localPlay.board,
-                    handleCellClicked = {},
+                    handleCellClicked = ::handleCellClicked,
                     currentMarker = it,
                     distortedGhost = false,
                     className = "TicTacToeBoard",

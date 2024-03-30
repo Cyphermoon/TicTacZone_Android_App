@@ -1,98 +1,95 @@
 package com.cyphermoon.tictaczone.presentation.game_flow.composables
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 
 @Composable
 fun TicTacToeBoard(
-    label: String, // The label to be displayed at the top of the board
-    board: Map<String, String>, // The current state of the game board
-    handleCellClicked: (String) -> Unit, // Function to be called when a cell is clicked
-    currentMarker: String, // The marker of the current player ("X" or "O")
-    distortedGhost: Boolean, // Not used in this function
-    className: String, // Not used in this function
-    player1Id: String?, // Not used in this function
-    player2Id: String?, // Not used in this function
-    distortedMode: Boolean = false // Not used in this function
+    label: String,
+    board: Map<String, String>,
+    handleCellClicked: (String) -> Unit,
+    currentMarker: String,
+    distortedGhost: Boolean,
+    className: String,
+    player1Id: String?,
+    player2Id: String?,
+    distortedMode: Boolean = false
 ) {
-    // Remember the positions of the cells in the board
-    val positions by remember { mutableStateOf(board.keys.toList()) }
-
-    // Create a column to hold the label and the game board
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
-            .background(MaterialTheme.colorScheme.primary) // Set the background color
-            .clip(RoundedCornerShape(25.dp)) // Clip the corners to make them rounded
-            .padding(16.dp) // Add padding around the column
-            .fillMaxWidth() // Make the column fill the maximum width
+            .background(MaterialTheme.colorScheme.primary)
+            .clip(RoundedCornerShape(25.dp))
+            .padding(16.dp)
+            .fillMaxWidth()
     ) {
-        // Display the label
         Text(text = label, style = MaterialTheme.typography.labelLarge)
-        // Add a spacer for some space between the label and the game board
         Spacer(modifier = Modifier.height(16.dp))
-        // Create a canvas to draw the game board
-        Canvas(modifier = Modifier
-            .fillMaxWidth() // Make the canvas fill the maximum width
-            .aspectRatio(1f) // Make the canvas square
-        ) {
-            // Draw the game board
-            drawField()
 
-            // For each position in the board
-            positions.forEach { position ->
-                // Calculate the x and y coordinates of the cell
-                val x = (position.toInt() - 1) % 3
-                val y = (position.toInt() - 1) / 3
-                // Calculate the center of the cell
-                val center = Offset(
-                    x = x * size.width / 3f + size.width / 6f,
-                    y = y * size.height / 3f + size.height / 6f
-                )
-                // Depending on the marker at the current position, draw an "X" or an "O"
-                when (board[position]) {
-                    "X" -> drawX(center = center)
-                    "O" -> drawO(center = center)
+        BoxWithConstraints(modifier = Modifier.aspectRatio(1f)) {
+            val cellSize = (constraints.maxWidth / 3)
+
+            Canvas(modifier = Modifier
+                .fillMaxSize()
+                .aspectRatio(1f)
+                .pointerInput(true) {
+                    detectTapGestures {
+                        val x = (3 * it.x.toInt() / size.width)
+                        val y = (3 * it.y.toInt() / size.height)
+                        val position = (y * 3 + x + 1).toString()
+                        handleCellClicked(position)
+                    }
+                }) {
+                drawField()
+                board.forEach { (position, player) ->
+                    val x = (position.toInt() - 1) % 3
+                    val y = (position.toInt() - 1) / 3
+                    val center = Offset(
+                        x = x * size.width / 3f + size.width / 6f,
+                        y = y * size.height / 3f + size.height / 6f
+                    )
+                    when (player) {
+                        "X" -> drawX(center = center)
+                        "O" -> drawO(center = center)
+                    }
                 }
             }
         }
     }
 }
+
 
 private fun DrawScope.drawField() {
     val strokeWidth = 3.dp.toPx()
@@ -195,7 +192,7 @@ fun TicTacToeBoardPreview() {
     val board = mapOf(
         "1" to "X",
         "2" to "O",
-        "3" to "",
+        "3" to "O",
         "4" to "X",
         "5" to "O",
         "6" to "",
