@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun CircularProgress(percentage: Float) {
+fun CircularProgress(percentage: Float, text: String? = null) {
     // Animate the progress value with a linear easing over a duration of 1000 milliseconds
     val animatedProgress = animateFloatAsState(
         label="Circular Progress for Profile Stats",
@@ -39,7 +39,7 @@ fun CircularProgress(percentage: Float) {
     ) {
         // Text composable is used to display the current progress as a percentage
         Text(
-            text = "${(animatedProgress.value * 100).toInt()}%",
+            text = text ?: "${(animatedProgress.value * 100).toInt()}%",
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.secondary,
@@ -72,5 +72,5 @@ fun CircularProgress(percentage: Float) {
 @Preview(showBackground = true)
 @Composable
 fun CircularProgressPreview() {
-    CircularProgress(0.5f)
+    CircularProgress(0.3f)
 }

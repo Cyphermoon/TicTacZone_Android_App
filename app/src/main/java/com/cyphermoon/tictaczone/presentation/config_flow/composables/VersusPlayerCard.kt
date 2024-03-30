@@ -15,6 +15,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cyphermoon.tictaczone.presentation.main.components.UserAvatar
+import com.cyphermoon.tictaczone.redux.GamePlayerProps
 import com.cyphermoon.tictaczone.redux.LocalPlayersProps
 import com.cyphermoon.tictaczone.redux.Player
 import com.cyphermoon.tictaczone.redux.PlayerProps
@@ -54,11 +55,11 @@ fun VersusPlayerCard(players: LocalPlayersProps, startGame: () -> Unit, mode: Vi
             verticalAlignment = Alignment.CenterVertically
         ) {
             // Display the first player's card
-            PlayerCard(player = PlayerUnionType.Player1(players.player1))
+            players.player1?.let { PlayerCard(player = it) }
             // Display the "VS" text
             Text(text = "VS", fontSize = 20.sp)
             // Display the second player's card
-            PlayerCard(player = PlayerUnionType.Player2(players.player2))
+            players.player2?.let { PlayerCard(player = it) }
 
     }
 }
@@ -67,7 +68,7 @@ fun VersusPlayerCard(players: LocalPlayersProps, startGame: () -> Unit, mode: Vi
 
 // Composable function to represent a PlayerCard
 @Composable
-fun PlayerCard(player: PlayerUnionType) {
+fun PlayerCard(player: GamePlayerProps) {
     // A Column Composable to arrange its children vertically
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -76,28 +77,14 @@ fun PlayerCard(player: PlayerUnionType) {
                     .width(200.dp)
     ) {
         // Check the type of the player
-        val playerName = when (player) {
-            is PlayerUnionType.Player1 -> player.player?.name
-            is PlayerUnionType.Player2 -> player.player?.name
-        }
 
-        val playerId = when (player) {
-            is PlayerUnionType.Player1 -> player.player?.id
-            is PlayerUnionType.Player2 -> player.player?.id
-        }
-
-        val playerMark = when (player) {
-            is PlayerUnionType.Player1 -> player.player?.mark
-            is PlayerUnionType.Player2 -> player.player?.mark
-        }
-
-        if(playerId != null){
+        if(player.id != null){
         // Display the player's avatar
-        UserAvatar(name = playerName ?: "id", id = playerId ?: "", imageUrl = null)
+        UserAvatar(name = player.name ?: "id", id = player.id ?: "", imageUrl = null)
         // Display the player's mark
-        Text(text = playerMark ?: "", fontSize = 30.sp, fontWeight = FontWeight.Bold)
+        Text(text = player.mark ?: "", fontSize = 30.sp, fontWeight = FontWeight.Bold)
         // Display the player's name
-        Text(text = playerName ?: "id_2", fontSize = 16.sp)
+        Text(text = player.name ?: "id_2", fontSize = 16.sp)
         }else{
             // Display a player not found message
             Text(text = "Player not found", fontSize = 16.sp)
@@ -115,20 +102,13 @@ fun PlayerCard(player: PlayerUnionType) {
 @Composable
 fun PreviewVersusPlayerCard() {
     // Create dummy data
-    val player1 = PlayerProps(
-        id = "1",
+    val player1 = GamePlayerProps(
         name = "Player 1",
-        isAnonymous = false,
-        matches = 10,
-        win = 5,
-        loss = 5,
-        email = "player1@example.com",
-        imageUrl = null,
-        online = true,
+        id = "1",
         mark = "X"
     )
 
-    val player2 = Player(
+    val player2 = GamePlayerProps(
         name = "Player 2",
         id = "2",
         mark = "O"

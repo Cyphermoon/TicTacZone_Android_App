@@ -73,7 +73,7 @@ fun AppNavigator() {
         }
         // A composable function for Game Screen
         composable(ScreenRoutes.GameScreen.route){
-            GameScreen(navController=navController)
+            GameScreen()
             }
         composable(ScreenRoutes.LoginScreen.route) {
             val viewModel = viewModel<AuthStateViewModel>()

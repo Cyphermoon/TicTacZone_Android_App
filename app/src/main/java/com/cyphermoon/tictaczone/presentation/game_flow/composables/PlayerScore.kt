@@ -26,6 +26,7 @@ import com.cyphermoon.tictaczone.ui.theme.Accent
 @Composable
 fun PlayerScore(
     imageURL: String?,
+    countdownText: String? = null,
     countdown: Int?,
     player1: GamePlayerProps,
     player2: GamePlayerProps,
@@ -54,13 +55,15 @@ fun PlayerScore(
 
                     // TODO: Replace with actual image loading logic
 
-                    UserAvatar(
-                        imageUrl = imageURL,
-                        name = currentPlayer.name,
-                        id = currentPlayer.id,
-                        modifier = Modifier.size(100.dp)
-                    )
-                    Text(text = currentPlayer.name, style = MaterialTheme.typography.labelMedium)
+                    currentPlayer.name?.let {
+                        UserAvatar(
+                            imageUrl = imageURL,
+                            name = it,
+                            id = currentPlayer.id!!,
+                            modifier = Modifier.size(100.dp)
+                        )
+                    }
+                    currentPlayer.name?.let { Text(text = it, style = MaterialTheme.typography.labelMedium) }
                     // TODO: Implement distorted mode logic
                     Button(
                         onClick = { /*TODO: Implement distorted mode toggle*/ },
@@ -75,12 +78,12 @@ fun PlayerScore(
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(text = "Timer", style = MaterialTheme.typography.labelSmall)
                         // TODO: Implement CircularBar composable
-                        CircularProgress(percentage = countdown.toFloat())
+                        CircularProgress(percentage = countdown.toFloat() / 100, text= countdownText)
                     }
                 }
             }
         } else {
-            Text(text = "Loading Current Player.....")
+            Text(text = "Current Player Couldn't be found please start again")
         }
     }
 }
@@ -98,7 +101,8 @@ fun PlayerScorePreview() {
 
     PlayerScore(
         imageURL = null,
-        countdown = 10,
+        countdown = 60,
+        countdownText = "5s",
         player1 = player,
         player2 = player,
         currentPlayer = player,

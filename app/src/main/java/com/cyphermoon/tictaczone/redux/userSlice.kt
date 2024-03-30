@@ -42,5 +42,6 @@ data class PlayerProps(
     var email: String = "",
     var imageUrl: String? = null,
     var online: Boolean = false,
-    val mark: String = "X"
+    val mark: String = "X",
+    var localGameScore: Int = 0
 )

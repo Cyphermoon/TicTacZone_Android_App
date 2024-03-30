@@ -22,6 +22,7 @@ import com.cyphermoon.tictaczone.presentation.main.components.ProfileStatsCard
 import com.cyphermoon.tictaczone.presentation.auth_flow.FirebaseUserData
 import com.cyphermoon.tictaczone.presentation.auth_flow.GoogleAuthenticator
 import com.cyphermoon.tictaczone.presentation.main.components.LocalOption
+import com.cyphermoon.tictaczone.redux.GamePlayerProps
 import com.cyphermoon.tictaczone.redux.LocalPlayersProps
 import com.cyphermoon.tictaczone.redux.Player
 import com.cyphermoon.tictaczone.redux.LocalPlayActions
@@ -46,12 +47,32 @@ fun MainScreen(navController: NavController, userData: FirebaseUserData?) {
 
     var userState by remember { mutableStateOf(store.getState().user) }
 
-    fun handleLocalPlayerUpdateConfig (player2: Player): Unit{
-        store.dispatch(LocalPlayActions.UpdatePlayers(LocalPlayersProps(player1 = userState, player2 = player2)))
+    fun handleLocalPlayerUpdateConfig(player2: Player): Unit {
+        val player1 = GamePlayerProps(
+            id = userState.id,
+            name = userState.name,
+            mark = "X",
+            score = 0,
+        )
+        store.dispatch(
+            LocalPlayActions.UpdatePlayers(
+                LocalPlayersProps(
+                    player1 = player1,
+                    player2 = GamePlayerProps(
+                        id = player2.id,
+                        name = player2.name,
+                        mark = "O",
+                        score = 0,
+                    )
+                )
+            )
+        )
+
+        store.dispatch(LocalPlayActions.UpdateCurrentPlayer(player1))
         navController.navigate(ScreenRoutes.ConfigScreen.route)
     }
 
-     //Subscribe to the store
+    //Subscribe to the store
     DisposableEffect(key1 = store.getState().user) {
         val unsubscribe = store.subscribe {
             userState = store.getState().user
@@ -64,7 +85,7 @@ fun MainScreen(navController: NavController, userData: FirebaseUserData?) {
     }
 
     Column(
-        modifier=
+        modifier =
         Modifier
             .fillMaxSize()
             .padding(16.dp)
@@ -80,10 +101,10 @@ fun MainScreen(navController: NavController, userData: FirebaseUserData?) {
             loss = userState.loss,
             handleChallenge = null,
             online = true,
-            id =userState.id
+            id = userState.id
         )
         Spacer(modifier = Modifier.height(26.dp))
 
-     LocalOption { player -> handleLocalPlayerUpdateConfig(player) }
+        LocalOption { player -> handleLocalPlayerUpdateConfig(player) }
     }
 }
