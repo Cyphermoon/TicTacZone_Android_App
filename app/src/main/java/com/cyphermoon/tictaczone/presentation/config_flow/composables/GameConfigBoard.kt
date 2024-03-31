@@ -1,5 +1,6 @@
 package com.cyphermoon.tictaczone.presentation.config_flow.composables
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -43,8 +44,7 @@ import com.cyphermoon.tictaczone.BoardType
 import com.cyphermoon.tictaczone.DEFAULT_GAME_CONFIG
 import com.cyphermoon.tictaczone.GameConfigType
 import com.cyphermoon.tictaczone.ui.theme.Accent
-import com.cyphermoon.tictaczone.ui.theme.TicTacZoneTheme
-
+import com.cyphermoon.tictaczone.ui.theme.LightSecondary
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GameConfigBoard(
@@ -71,7 +71,9 @@ fun GameConfigBoard(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .background(LightSecondary)
+            .padding(16.dp)
+            .clip(RoundedCornerShape(20.dp)),
         horizontalAlignment = Alignment.Start
     ) {
         Column {
@@ -136,9 +138,9 @@ fun GameConfigBoard(
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 colors = TextFieldDefaults.textFieldColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    focusedIndicatorColor = MaterialTheme.colorScheme.primary,
-                    unfocusedIndicatorColor = MaterialTheme.colorScheme.primary
+                    containerColor = Color.LightGray,
+                    focusedIndicatorColor = Color.DarkGray,
+                    unfocusedIndicatorColor = Color.LightGray
                 )
 
             )
@@ -159,9 +161,9 @@ fun GameConfigBoard(
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 colors = TextFieldDefaults.textFieldColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    focusedIndicatorColor = MaterialTheme.colorScheme.primary,
-                    unfocusedIndicatorColor = MaterialTheme.colorScheme.primary
+                    containerColor = Color.LightGray,
+                    focusedIndicatorColor = Color.DarkGray,
+                    unfocusedIndicatorColor = Color.LightGray
                 )
             )
         }
@@ -177,7 +179,7 @@ fun GameConfigBoard(
                 checked = distortedMode.value,
                 onCheckedChange = { distortedMode.value = it; onDistortedModeChange(it) },
                 colors = SwitchDefaults.colors(
-                    checkedThumbColor = MaterialTheme.colorScheme.primary,
+                    checkedThumbColor = MaterialTheme.colorScheme.secondary,
                     checkedTrackColor = MaterialTheme.colorScheme.tertiary,
                 )
             )

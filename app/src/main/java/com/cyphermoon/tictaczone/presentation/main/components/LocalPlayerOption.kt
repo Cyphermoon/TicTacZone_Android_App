@@ -79,9 +79,9 @@ fun PlayerInput( label: String, player: Player, handleNameChange: (String) -> Un
             singleLine = true,
             placeholder = { Text(text = "Enter Player 2 Name")},
             colors = TextFieldDefaults.textFieldColors(
-                containerColor = MaterialTheme.colorScheme.primary,
-                focusedIndicatorColor = MaterialTheme.colorScheme.primary,
-                unfocusedIndicatorColor = MaterialTheme.colorScheme.primary
+                containerColor = Color.LightGray,
+                focusedIndicatorColor = Color.DarkGray,
+                unfocusedIndicatorColor = Color.LightGray
             )
         )
     }

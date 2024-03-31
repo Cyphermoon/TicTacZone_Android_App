@@ -22,6 +22,7 @@ import com.cyphermoon.tictaczone.presentation.main.components.CircularProgress
 import com.cyphermoon.tictaczone.presentation.main.components.UserAvatar
 import com.cyphermoon.tictaczone.redux.GamePlayerProps
 import com.cyphermoon.tictaczone.ui.theme.Accent
+import com.cyphermoon.tictaczone.ui.theme.LightSecondary
 
 @Composable
 fun PlayerScore(
@@ -40,7 +41,6 @@ fun PlayerScore(
 
     Column(
         modifier = Modifier
-            .background(MaterialTheme.colorScheme.surface)
             .clip(RoundedCornerShape(16.dp))
             .padding(16.dp)
             .fillMaxWidth()
@@ -62,7 +62,7 @@ fun PlayerScore(
                             imageUrl = imageURL,
                             name = it,
                             id = currentPlayer.id!!,
-                            modifier = Modifier.size(100.dp)
+                            modifier = Modifier.size(180.dp)
                         )
                     }
                     currentPlayer.name?.let { Text(text = it, style = MaterialTheme.typography.labelMedium) }

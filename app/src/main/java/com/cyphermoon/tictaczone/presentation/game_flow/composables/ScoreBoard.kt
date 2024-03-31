@@ -21,13 +21,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.cyphermoon.tictaczone.presentation.main.components.UserAvatar
 import com.cyphermoon.tictaczone.redux.GamePlayerProps
+import com.cyphermoon.tictaczone.ui.theme.LightSecondary
 
 @Composable
 fun ScoreBoard(rounds: Int, draws: Int, player1: GamePlayerProps, player2: GamePlayerProps, bestOf: Int?) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
-            .background(MaterialTheme.colorScheme.primary)
+            .background(LightSecondary)
             .padding(16.dp)
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))

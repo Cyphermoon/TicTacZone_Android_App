@@ -1,5 +1,6 @@
 package com.cyphermoon.tictaczone.presentation.game_flow
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -7,6 +8,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -14,6 +16,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -34,11 +37,11 @@ import kotlin.concurrent.schedule
 import kotlin.math.roundToInt
 
 @Composable
-fun GameScreen() {
+fun LocalGameScreen() {
     var localPlay by remember { mutableStateOf(store.getState().localPlay) }
     // Add a state to track whether the modal is open
     var isModalOpen by remember { mutableStateOf(false) }
-    var distortedGhost by remember { mutableStateOf(false) }
+    var distortedGhost by rememberSaveable { mutableStateOf(false) }
 
     val timerPercentage = (localPlay.countdown.toDouble() / localPlay.gameConfig!!.timer.toDouble() * 100).roundToInt()
     val context = LocalContext.current
@@ -287,6 +290,8 @@ fun GameScreen() {
                 handleDistortedMode = { toggleDistortedGhost() },
                 distortedMode = localPlay.gameConfig!!.distortedMode
             )
+
+            Spacer(modifier = Modifier.height(16.dp))
 
             localPlay.currentPlayer?.mark?.let {
                 TicTacToeBoard(

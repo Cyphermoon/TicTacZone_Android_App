@@ -42,7 +42,7 @@ fun CircularProgress(percentage: Float, text: String? = null) {
             text = text ?: "${(animatedProgress.value * 100).toInt()}%",
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.secondary,
+            color = MaterialTheme.colorScheme.primary,
         )
         Spacer(modifier = Modifier.height(5.dp))
 

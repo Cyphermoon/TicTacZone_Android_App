@@ -42,6 +42,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cyphermoon.tictaczone.presentation.game_flow.utils.shuffleBoard
+import com.cyphermoon.tictaczone.ui.theme.LightSecondary
 
 @Composable
 fun TicTacToeBoard(
@@ -68,7 +69,7 @@ fun TicTacToeBoard(
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
-            .background(MaterialTheme.colorScheme.primary)
+            .background(LightSecondary)
             .clip(RoundedCornerShape(25.dp))
             .padding(16.dp)
             .fillMaxWidth()

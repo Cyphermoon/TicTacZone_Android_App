@@ -12,6 +12,7 @@ val Pink40 = Color(0xFF7D5260)
 
 // Custom Colors
 val Accent = Color(0xFFF41F4E)
+val LightSecondary = Color(0xC8E6E6E6)
 val Secondary = Color(0xFF494949)
 val Primary = Color(0xFFFBFBFB)
 val Card = Color(0xFFEEEEEE)
