@@ -125,6 +125,7 @@ fun showGameStateDialog(context: Context, title: String, message: String, resetB
             if(resetBoard !== null) resetBoard()
             dialog.dismiss()
         }
+        .setCancelable(false)
         .create() // Create the AlertDialog
         .show() // Show the AlertDialog
 }
