@@ -1,5 +1,9 @@
 package com.cyphermoon.tictaczone.presentation.game_flow.utils
 
+import com.cyphermoon.tictaczone.redux.GamePlayerProps
+import android.app.AlertDialog
+import android.content.Context
+
 fun checkWinningMove(board: Map<String, String>, currentPlayerMarker: String): Boolean {
     // Define the winning combinations
     val winningCombinations = listOf(
@@ -96,3 +100,27 @@ fun getWinner(board: Map<String, String>): String? {
 fun isValidMove(board: Map<String, String>, position: String): Boolean {
     return board[position].isNullOrEmpty()
 }
+
+
+
+/**
+ * This function shows a dialog with a title and a message.
+ * @param context The context in which the dialog should be shown.
+ * @param title The title of the dialog.
+ * @param message The message of the dialog.
+ */
+fun showGameStateDialog(context: Context, title: String, message: String, resetBoard: (() -> Unit)? = null) {
+    // Create an AlertDialog builder with the given context
+    AlertDialog.Builder(context)
+        .setTitle(title) // Set the title of the dialog
+        .setMessage(message) // Set the message of the dialog
+        .setPositiveButton("OK") { dialog, _ ->
+            // Set a positive button with the text "OK"
+            // When this button is clicked, dismiss the dialog
+            if(resetBoard !== null) resetBoard()
+            dialog.dismiss()
+        }
+        .create() // Create the AlertDialog
+        .show() // Show the AlertDialog
+}
+

@@ -30,6 +30,7 @@ fun localPlayReducer(state: LocalPlayConfig = initialState, action: Any): LocalP
             is LocalPlayActions.UpdateCountdown -> it.copy(countdown = action.countdown)
             is LocalPlayActions.UpdateBoard -> it.copy(board = action.board)
             is LocalPlayActions.UpdateDraws -> it.copy(draws = action.draws)
+            is LocalPlayActions.UpdateCurrentRound -> it.copy(currentRound = action.currentRound)
 
             else -> it
         }
@@ -62,7 +63,8 @@ data class LocalPlayConfig(
         "8" to "",
         "9" to ""
     ),
-    var draws: Int = 0
+    var draws: Int = 0,
+    var currentRound: Int = 1
 )
 
 data class Player(
@@ -108,5 +110,6 @@ sealed class LocalPlayActions {
     data class UpdateCountdown(val countdown: Int) : LocalPlayActions()
     data class UpdateBoard(val board: Map<String, String>) : LocalPlayActions()
     data class UpdateDraws(val draws: Int) : LocalPlayActions()
+    data class UpdateCurrentRound(val currentRound: Int) : LocalPlayActions()
 }
 

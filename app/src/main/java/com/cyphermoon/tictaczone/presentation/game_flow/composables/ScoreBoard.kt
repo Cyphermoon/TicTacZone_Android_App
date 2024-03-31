@@ -27,7 +27,7 @@ fun ScoreBoard(rounds: Int, draws: Int, player1: GamePlayerProps, player2: GameP
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
-            .background(MaterialTheme.colorScheme.surface)
+            .background(MaterialTheme.colorScheme.primary)
             .padding(16.dp)
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
