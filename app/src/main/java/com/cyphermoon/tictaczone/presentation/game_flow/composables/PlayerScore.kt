@@ -31,7 +31,9 @@ fun PlayerScore(
     player1: GamePlayerProps,
     player2: GamePlayerProps,
     currentPlayer: GamePlayerProps?,
-    setCurrentPlayer: (GamePlayerProps) -> Unit
+    setCurrentPlayer: (GamePlayerProps) -> Unit,
+    handleDistortedMode: () -> Unit,
+    distortedMode: Boolean = false
 ) {
     // TODO: Implement the equivalent of the useEffect hook in Compose
     // This might involve creating a custom effect using LaunchedEffect or DisposableEffect
@@ -64,14 +66,17 @@ fun PlayerScore(
                         )
                     }
                     currentPlayer.name?.let { Text(text = it, style = MaterialTheme.typography.labelMedium) }
-                    // TODO: Implement distorted mode logic
-                    Button(
-                        onClick = { /*TODO: Implement distorted mode toggle*/ },
-                        colors = ButtonDefaults.buttonColors(containerColor = Accent)
+                    // Distorted Mode button
+                    if(distortedMode){
+                        Button(
+                            onClick = {  handleDistortedMode() },
+                            colors = ButtonDefaults.buttonColors(containerColor = Accent)
 
-                    ) {
-                        Text(text = "Show Distorted")
+                        ) {
+                            Text(text = "Show Distorted")
+                        }
                     }
+
                 }
 
                 if (countdown != null) {
@@ -106,6 +111,7 @@ fun PlayerScorePreview() {
         player1 = player,
         player2 = player,
         currentPlayer = player,
-        setCurrentPlayer = {}
+        setCurrentPlayer = {},
+        handleDistortedMode = {}
     )
 }

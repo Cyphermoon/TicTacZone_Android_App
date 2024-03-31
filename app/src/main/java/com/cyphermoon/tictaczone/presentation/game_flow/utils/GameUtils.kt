@@ -7,6 +7,7 @@ import com.cyphermoon.tictaczone.redux.LocalPlayActions
 import com.cyphermoon.tictaczone.redux.store
 import java.util.Timer
 import java.util.TimerTask
+import kotlin.random.Random
 
 fun checkWinningMove(board: Map<String, String>, currentPlayerMarker: String): Boolean {
     // Define the winning combinations
@@ -130,20 +131,44 @@ fun showGameStateDialog(context: Context, title: String, message: String, resetB
 
 // TimerUtils is a utility object that provides functions to start and stop a timer.
 object TimerUtils {
+    // A nullable Timer variable that will hold the instance of the timer when it's started.
     var timer: Timer? = null
 
+    // Function to start the timer. It takes a lambda function as a parameter which will be called every tick.
     fun startTimer(onTick: (TimerTask) -> Unit) {
+        // Create a new Timer instance and assign it to the timer variable.
         timer = Timer()
+        // Schedule a new TimerTask to run after a delay and at fixed intervals.
+        // The task is an anonymous object that extends TimerTask and overrides its run method.
+        // Inside the run method, it calls the onTick function passed as a parameter to startTimer.
         timer?.schedule(object : TimerTask() {
             override fun run() {
                 onTick(this)
             }
-        }, 0, 1000)
+        }, 0, 1000) // The task is scheduled to run immediately (after 0 milliseconds delay) and repeat every 1000 milliseconds (1 second).
     }
 
+    // Function to stop the timer.
     fun stopTimer() {
+        // Call the cancel method on the timer instance to stop it.
+        // The timer instance is then set to null.
         timer?.cancel()
     }
+}
+
+
+/**
+ * Shuffles the keys of a given board map.
+ *
+ * @param board The board map to shuffle.
+ * @param seed The seed for the random number generator. This is used to ensure that the shuffling is deterministic.
+ * @return A list of shuffled keys from the board map.
+ */
+fun shuffleBoard(board: Map<String, String>, seed: String): List<String> {
+    // Convert the seed to a hash code. This is used to initialize the random number generator.
+    val random = Random(seed.hashCode())
+    // Shuffle the keys of the board map using the random number generator and return the shuffled list.
+    return board.keys.shuffled(random)
 }
 
 

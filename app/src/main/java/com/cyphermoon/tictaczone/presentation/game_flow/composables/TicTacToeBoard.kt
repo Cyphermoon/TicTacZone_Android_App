@@ -1,5 +1,6 @@
 package com.cyphermoon.tictaczone.presentation.game_flow.composables
 
+import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -19,9 +20,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -31,9 +34,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.text.drawText
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.cyphermoon.tictaczone.presentation.game_flow.utils.shuffleBoard
 
 @Composable
 fun TicTacToeBoard(
@@ -47,6 +55,16 @@ fun TicTacToeBoard(
     player2Id: String?,
     distortedMode: Boolean = false
 ) {
+    var positions by remember { mutableStateOf(listOf<String>()) }
+
+    LaunchedEffect(key1 = Unit) {
+        positions = if (distortedMode) {
+            shuffleBoard(board, "${player1Id}_${player2Id}")
+        } else {
+            board.keys.toList()
+        }
+
+    }
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -55,34 +73,71 @@ fun TicTacToeBoard(
             .padding(16.dp)
             .fillMaxWidth()
     ) {
+
+
         Text(text = label, style = MaterialTheme.typography.labelLarge)
         Spacer(modifier = Modifier.height(16.dp))
 
         BoxWithConstraints(modifier = Modifier.aspectRatio(1f)) {
             val cellSize = (constraints.maxWidth / 3)
 
-            Canvas(modifier = Modifier
-                .fillMaxSize()
-                .aspectRatio(1f)
-                .pointerInput(true) {
-                    detectTapGestures {
-                        val x = (3 * it.x.toInt() / size.width)
-                        val y = (3 * it.y.toInt() / size.height)
-                        val position = (y * 3 + x + 1).toString()
-                        handleCellClicked(position)
+            Canvas(
+                modifier = Modifier
+                    .fillMaxSize() // Fill the maximum available space
+                    .aspectRatio(1f) // Maintain an aspect ratio of 1:1 for the Canvas
+                    .pointerInput(true) { // Enable pointer input
+                        detectTapGestures { // Detect tap gestures
+                            // Calculate the x and y coordinates of the tap
+                            val x = (3 * it.x.toInt() / size.width)
+                            val y = (3 * it.y.toInt() / size.height)
+                            // Calculate the index of the cell that was tapped
+                            val index = if(distortedMode) y * 3 + x else y * 3 + x + 1
+                            // Get the position of the cell in the shuffled positions list
+                            val position = if (distortedMode) positions[index] else index.toString()
+                            // Call the handleCellClicked function with the position
+                            handleCellClicked(position)
+                        }
                     }
-                }) {
-                drawField()
-                board.forEach { (position, player) ->
-                    val x = (position.toInt() - 1) % 3
-                    val y = (position.toInt() - 1) / 3
+            ) {
+                drawField() // Draw the tic-tac-toe field
+
+                // Iterate over the positions list with the index
+                positions.forEachIndexed { index, position ->
+                    // Get the player who marked this position
+                    val player = board[position]
+
+                    // Calculate the x and y coordinates of the cell
+                    val x = index % 3
+                    val y = index / 3
+
+                    // Calculate the center of the cell
                     val center = Offset(
                         x = x * size.width / 3f + size.width / 6f,
                         y = y * size.height / 3f + size.height / 6f
                     )
+
+                    // Draw the player's mark in the cell
                     when (player) {
                         "X" -> drawX(center = center)
                         "O" -> drawO(center = center)
+                    }
+
+                    // If distortedGhost is true, draw the position number
+                    if (distortedGhost) {
+                        drawIntoCanvas { canvas ->
+                            val paint = android.graphics.Paint().apply {
+                                color = android.graphics.Color.GRAY
+                                alpha = 128 // semi-transparent
+                                textSize = 40f
+                            }
+                            // Draw the position number in the cell
+                            canvas.nativeCanvas.drawText(
+                                position,
+                                center.x,
+                                center.y,
+                                paint
+                            )
+                        }
                     }
                 }
             }
@@ -208,8 +263,8 @@ fun TicTacToeBoardPreview() {
         currentMarker = "X",
         distortedGhost = false,
         className = "TicTacToeBoard",
-        player1Id = "1",
-        player2Id = "2",
+        player1Id = "player1",
+        player2Id = "player2",
         distortedMode = false
     )
 }

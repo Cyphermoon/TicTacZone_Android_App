@@ -39,6 +39,6 @@ val DEFAULT_GAME_CONFIG = GameConfigType(
     timer = 10,
     totalRounds = 3,
     roundsToWin = 2,
-    distortedMode = true,
+    distortedMode = false,
     revealMode = false
 )
