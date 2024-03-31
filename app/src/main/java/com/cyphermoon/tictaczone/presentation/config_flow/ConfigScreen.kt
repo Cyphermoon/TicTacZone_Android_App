@@ -33,6 +33,7 @@ fun ConfigScreen(navController: NavController) {
     // Game Config Functions
     fun handleTimerChange(newTimer: Int) {
         store.dispatch(LocalPlayActions.UpdateTimer(newTimer))
+        store.dispatch(LocalPlayActions.UpdateCountdown(newTimer))
     }
 
     fun handleRoundsToWinChange(newRoundsToWin: Int) {

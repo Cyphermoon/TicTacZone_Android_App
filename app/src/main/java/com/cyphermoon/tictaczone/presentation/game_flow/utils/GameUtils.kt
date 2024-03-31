@@ -3,6 +3,10 @@ package com.cyphermoon.tictaczone.presentation.game_flow.utils
 import com.cyphermoon.tictaczone.redux.GamePlayerProps
 import android.app.AlertDialog
 import android.content.Context
+import com.cyphermoon.tictaczone.redux.LocalPlayActions
+import com.cyphermoon.tictaczone.redux.store
+import java.util.Timer
+import java.util.TimerTask
 
 fun checkWinningMove(board: Map<String, String>, currentPlayerMarker: String): Boolean {
     // Define the winning combinations
@@ -123,4 +127,23 @@ fun showGameStateDialog(context: Context, title: String, message: String, resetB
         .create() // Create the AlertDialog
         .show() // Show the AlertDialog
 }
+
+// TimerUtils is a utility object that provides functions to start and stop a timer.
+object TimerUtils {
+    var timer: Timer? = null
+
+    fun startTimer(onTick: (TimerTask) -> Unit) {
+        timer = Timer()
+        timer?.schedule(object : TimerTask() {
+            override fun run() {
+                onTick(this)
+            }
+        }, 0, 1000)
+    }
+
+    fun stopTimer() {
+        timer?.cancel()
+    }
+}
+
 

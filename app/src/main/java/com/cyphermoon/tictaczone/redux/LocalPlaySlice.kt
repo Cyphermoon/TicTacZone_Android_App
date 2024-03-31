@@ -50,10 +50,10 @@ data class LocalPlayConfig(
     ),
     val gameConfig: GameConfigType? = DEFAULT_GAME_CONFIG,
     var currentPlayer: GamePlayerProps? = null,
-    var countdown: Int = 5,
+    var countdown: Int = DEFAULT_GAME_CONFIG.timer,
 
     var board: Map<String, String> = mapOf(
-        "1" to "X",
+        "1" to "",
         "2" to "",
         "3" to "",
         "4" to "",

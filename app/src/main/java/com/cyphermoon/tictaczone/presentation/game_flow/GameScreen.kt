@@ -24,6 +24,7 @@ import androidx.navigation.NavController
 import com.cyphermoon.tictaczone.presentation.game_flow.composables.PlayerScore
 import com.cyphermoon.tictaczone.presentation.game_flow.composables.ScoreBoard
 import com.cyphermoon.tictaczone.presentation.game_flow.composables.TicTacToeBoard
+import com.cyphermoon.tictaczone.presentation.game_flow.utils.TimerUtils
 import com.cyphermoon.tictaczone.presentation.game_flow.utils.checkIfBoardIsFull
 import com.cyphermoon.tictaczone.presentation.game_flow.utils.checkWinningMove
 import com.cyphermoon.tictaczone.presentation.game_flow.utils.isValidMove
@@ -32,15 +33,20 @@ import com.cyphermoon.tictaczone.presentation.game_flow.utils.showGameStateDialo
 import com.cyphermoon.tictaczone.redux.GamePlayerProps
 import com.cyphermoon.tictaczone.redux.LocalPlayActions
 import com.cyphermoon.tictaczone.redux.store
+import java.util.Timer
+import java.util.TimerTask
 import kotlin.math.roundToInt
 
 @Composable
 fun GameScreen() {
     var localPlay by remember { mutableStateOf(store.getState().localPlay) }
+    // Add a state to track whether the modal is open
+    var isModalOpen by remember { mutableStateOf(false) }
 
     var timerPercentage =
         (localPlay.countdown.toDouble() / localPlay.gameConfig!!.timer.toDouble() * 100).roundToInt()
     val context = LocalContext.current
+
 
     /**
      * This function resets the scores of both players to 0 after a full round.
@@ -61,6 +67,11 @@ fun GameScreen() {
         store.dispatch(LocalPlayActions.UpdatePlayer2(player2.copy(score = 0)))
         // Dispatch an action to update the current round to 1
         store.dispatch(LocalPlayActions.UpdateCurrentRound(1))
+        //Dispatch an action to reset the countdown
+        store.dispatch(LocalPlayActions.UpdateCountdown(localPlay.gameConfig?.timer ?: 0))
+
+        // Set Modal state to false
+        isModalOpen = false
 
     }
 
@@ -97,6 +108,8 @@ fun GameScreen() {
                             "${currentPlayer.name} has won the game!",
                             resetBoard = { resetAfterFullRound() }
                         )
+                        // Set the modal state to true
+                        isModalOpen = true
                     }
                 }
             } else {
@@ -109,8 +122,12 @@ fun GameScreen() {
                             context,
                             "Game Over",
                             "${currentPlayer.name} has won the game!",
-                            resetBoard = { resetAfterFullRound() })
+                            resetBoard = { resetAfterFullRound() }
+                        )
+                        // Set modal state to true
+                        isModalOpen = true
                     }
+
                 }
             }
             // Increment the current round
@@ -123,7 +140,11 @@ fun GameScreen() {
         // Check if the game is a draw
         if (checkIfBoardIsFull(newBoard)) {
             // Show a dialog indicating the game is a draw
-            showGameStateDialog(context, "Game Over", "The game is a draw!", resetBoard={resetAfterFullRound()})
+            showGameStateDialog(
+                context,
+                "Game Over",
+                "The game is a draw!",
+                resetBoard = { resetAfterFullRound() })
             // Update the draws count
             store.dispatch(LocalPlayActions.UpdateDraws(localPlay.draws + 1))
             // Reset the board
@@ -135,6 +156,97 @@ fun GameScreen() {
         // Switch to the other player
         val nextPlayer = if (currentPlayer.id == player1.id) player2 else player1
         store.dispatch(LocalPlayActions.UpdateCurrentPlayer(nextPlayer))
+    }
+
+    DisposableEffect(key1 = localPlay.currentRound, key2 = isModalOpen) {
+        if (isModalOpen) {
+            TimerUtils.stopTimer()
+        } else {
+
+            TimerUtils.startTimer { timerTask ->
+                // This block of code will be executed every second
+                // 'timerTask' is the current TimerTask instance
+                // Get the current state of the game.
+                val localPlay = store.getState().localPlay
+                // If the countdown is greater than 0, decrement it and update the redux store.
+                if (localPlay.countdown > 0) {
+                    store.dispatch(LocalPlayActions.UpdateCountdown(localPlay.countdown - 1))
+                    println("Countdown: ${localPlay.countdown}")
+                } else {
+                    // If the countdown has reached 0, cancel the timer and print a message.
+                    TimerUtils.stopTimer()
+                    println("Countdown finished")
+
+                    // Increase the total rounds
+                    store.dispatch(LocalPlayActions.UpdateCurrentRound(localPlay.currentRound + 1))
+                    // Reset the countdown
+                    store.dispatch(
+                        LocalPlayActions.UpdateCountdown(
+                            localPlay.gameConfig?.timer ?: 0
+                        )
+                    )
+
+                    // Update the score of the other player
+                    val otherPlayer =
+                        if (localPlay.currentPlayer?.id == localPlay.players?.player1?.id) localPlay.players?.player2 else localPlay.players?.player1
+                    if (otherPlayer != null) {
+                        store.dispatch(
+                            if (otherPlayer.id == localPlay.players?.player1?.id) LocalPlayActions.UpdatePlayer1(
+                                otherPlayer.copy(score = otherPlayer.score + 1)
+                            ) else LocalPlayActions.UpdatePlayer2(otherPlayer.copy(score = otherPlayer.score + 1))
+                        )
+                    }
+
+                    // Switch the current player
+                    otherPlayer?.let { LocalPlayActions.UpdateCurrentPlayer(it) }
+                        ?.let { store.dispatch(it) }
+                }
+            }
+        }
+
+        onDispose {
+            // Stop the timer when the composable is disposed
+            TimerUtils.stopTimer()
+        }
+    }
+
+    LaunchedEffect(
+        key1 = localPlay.players?.player1?.score,
+        key2 = localPlay.players?.player2?.score,
+        key3 = localPlay.gameConfig?.roundsToWin
+    ) {
+        val roundsToWin = localPlay.gameConfig?.roundsToWin ?: 0
+        val player1 = localPlay.players?.player1
+        val player2 = localPlay.players?.player2
+
+        // Check if a player has won the game
+        if (player1?.score ?: 0 >= roundsToWin || player2?.score ?: 0 >= roundsToWin) {
+            // Pause the game and open the modal
+            isModalOpen = true
+            TimerUtils.stopTimer()
+        }
+
+        // Check if player 1 has won the game
+        if (player1 != null && player1?.score ?: 0 >= roundsToWin)  {
+            // Set player1 as the winner
+            showGameStateDialog(
+                context,
+                "Game Over",
+                "${player1.name} has won the game!",
+                resetBoard = { resetAfterFullRound() }
+            )
+        }
+
+        // Check if player 2 has won the game
+        if (player2 != null && player2?.score ?: 0 >= roundsToWin) {
+            // Set player2 as the winner
+            showGameStateDialog(
+                context,
+                "Game Over",
+                "${player2.name} has won the game!",
+                resetBoard = { resetAfterFullRound() }
+            )
+        }
     }
 
     DisposableEffect(key1 = store.getState().localPlay, key2 = store.getState().localPlay.board) {
