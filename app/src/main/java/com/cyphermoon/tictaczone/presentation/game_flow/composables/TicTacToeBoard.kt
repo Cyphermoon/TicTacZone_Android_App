@@ -54,7 +54,8 @@ fun TicTacToeBoard(
     className: String,
     player1Id: String?,
     player2Id: String?,
-    distortedMode: Boolean = false
+    distortedMode: Boolean = false,
+    disableBoard: Boolean? = false
 ) {
     var positions by remember { mutableStateOf(listOf<String>()) }
 
@@ -88,15 +89,18 @@ fun TicTacToeBoard(
                     .aspectRatio(1f) // Maintain an aspect ratio of 1:1 for the Canvas
                     .pointerInput(true) { // Enable pointer input
                         detectTapGestures { // Detect tap gestures
-                            // Calculate the x and y coordinates of the tap
-                            val x = (3 * it.x.toInt() / size.width)
-                            val y = (3 * it.y.toInt() / size.height)
-                            // Calculate the index of the cell that was tapped
-                            val index = if(distortedMode) y * 3 + x else y * 3 + x + 1
-                            // Get the position of the cell in the shuffled positions list
-                            val position = if (distortedMode) positions[index] else index.toString()
-                            // Call the handleCellClicked function with the position
-                            handleCellClicked(position)
+                            if(disableBoard == false){
+                                // Calculate the x and y coordinates of the tap
+                                val x = (3 * it.x.toInt() / size.width)
+                                val y = (3 * it.y.toInt() / size.height)
+                                // Calculate the index of the cell that was tapped
+                                val index = if(distortedMode) y * 3 + x else y * 3 + x + 1
+                                // Get the position of the cell in the shuffled positions list
+                                val position = if (distortedMode) positions[index] else index.toString()
+                                // Call the handleCellClicked function with the position
+                                handleCellClicked(position)
+                            }
+
                         }
                     }
             ) {

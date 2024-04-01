@@ -19,19 +19,28 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.cyphermoon.tictaczone.GameModes
 import com.cyphermoon.tictaczone.presentation.game_flow.composables.PlayerScore
 import com.cyphermoon.tictaczone.presentation.game_flow.composables.ScoreBoard
 import com.cyphermoon.tictaczone.presentation.game_flow.composables.TicTacToeBoard
 import com.cyphermoon.tictaczone.presentation.game_flow.utils.TimerUtils
 import com.cyphermoon.tictaczone.presentation.game_flow.utils.checkIfBoardIsFull
 import com.cyphermoon.tictaczone.presentation.game_flow.utils.checkWinningMove
+import com.cyphermoon.tictaczone.presentation.game_flow.utils.generateEasyAIMove
+import com.cyphermoon.tictaczone.presentation.game_flow.utils.generateHardAIMove
+import com.cyphermoon.tictaczone.presentation.game_flow.utils.generateMediumAIMove
 import com.cyphermoon.tictaczone.presentation.game_flow.utils.isValidMove
+import com.cyphermoon.tictaczone.presentation.game_flow.utils.resetAfterFullRound
 import com.cyphermoon.tictaczone.presentation.game_flow.utils.resetBoard
 import com.cyphermoon.tictaczone.presentation.game_flow.utils.showGameStateDialog
+import com.cyphermoon.tictaczone.redux.GamePlayerProps
 import com.cyphermoon.tictaczone.redux.LocalPlayActions
 import com.cyphermoon.tictaczone.redux.store
+import kotlinx.coroutines.delay
 import java.util.Timer
 import kotlin.concurrent.schedule
 import kotlin.math.roundToInt
@@ -43,34 +52,30 @@ fun LocalGameScreen() {
     var isModalOpen by remember { mutableStateOf(false) }
     var distortedGhost by rememberSaveable { mutableStateOf(false) }
 
-    val timerPercentage = (localPlay.countdown.toDouble() / localPlay.gameConfig!!.timer.toDouble() * 100).roundToInt()
+    val timerPercentage =
+        (localPlay.countdown.toDouble() / localPlay.gameConfig!!.timer.toDouble() * 100).roundToInt()
+    var gameMode by remember { mutableStateOf(store.getState().gameMode.mode) }
     val context = LocalContext.current
+    val isAITurn = localPlay.currentPlayer?.id == localPlay.players?.player2?.id
+    var isThinking by remember { mutableStateOf(false) }
+    var thinkingTime by remember { mutableStateOf(0) }
 
 
     /**
      * This function resets the scores of both players to 0 after a full round.
      * A full round is considered complete when one of the players has won the required number of games (roundsToWin).
      */
-    fun resetAfterFullRound() {
+
+
+    fun resetGameState(){
         // Retrieve the player1 and player2 from the localPlay state
         val player1 = localPlay.players?.player1
         val player2 = localPlay.players?.player2
 
-        // Check if both players are not null
-        if (player1 == null || player2 == null) return
-
-        // If both players are not null, reset their scores to 0
-        // Dispatch an action to update player1's score in the state
-        store.dispatch(LocalPlayActions.UpdatePlayer1(player1.copy(score = 0)))
-        // Dispatch an action to update player2's score in the state
-        store.dispatch(LocalPlayActions.UpdatePlayer2(player2.copy(score = 0)))
-        // Dispatch an action to update the current round to 1
-        store.dispatch(LocalPlayActions.UpdateCurrentRound(1))
-        //Dispatch an action to reset the countdown
-        store.dispatch(LocalPlayActions.UpdateCountdown(localPlay.gameConfig?.timer ?: 0))
-
         // Set Modal state to false
-        isModalOpen = false
+
+
+        resetAfterFullRound(localPlay.gameConfig?.timer, player1, player2, onFinish = {isModalOpen = false})
 
     }
 
@@ -105,7 +110,7 @@ fun LocalGameScreen() {
                             context,
                             "Game Over",
                             "${currentPlayer.name} has won the game!",
-                            resetBoard = { resetAfterFullRound() }
+                            resetBoard = { resetGameState() }
                         )
                         // Set the modal state to true
                         isModalOpen = true
@@ -121,7 +126,7 @@ fun LocalGameScreen() {
                             context,
                             "Game Over",
                             "${currentPlayer.name} has won the game!",
-                            resetBoard = { resetAfterFullRound() }
+                            resetBoard = { resetGameState() }
                         )
                         // Set modal state to true
                         isModalOpen = true
@@ -144,7 +149,7 @@ fun LocalGameScreen() {
                 context,
                 "Game Over",
                 "The game is a draw!",
-                resetBoard = { resetAfterFullRound() })
+                resetBoard = { resetGameState() })
             // Update the draws count
             store.dispatch(LocalPlayActions.UpdateDraws(localPlay.draws + 1))
             // Reset the board
@@ -161,7 +166,7 @@ fun LocalGameScreen() {
         store.dispatch(LocalPlayActions.UpdateCountdown(localPlay.gameConfig?.timer ?: 0))
     }
 
-    fun toggleDistortedGhost(){
+    fun toggleDistortedGhost() {
         distortedGhost = true
         Timer("DistortedGhost", false).schedule(5000) {
             distortedGhost = false
@@ -237,13 +242,13 @@ fun LocalGameScreen() {
         }
 
         // Check if player 1 has won the game
-        if (player1 != null && player1.score >= roundsToWin)  {
+        if (player1 != null && player1.score >= roundsToWin) {
             // Set player1 as the winner
             showGameStateDialog(
                 context,
                 "Game Over",
                 "${player1.name} has won the game!",
-                resetBoard = { resetAfterFullRound() }
+                resetBoard = { resetGameState() }
             )
         }
 
@@ -254,7 +259,7 @@ fun LocalGameScreen() {
                 context,
                 "Game Over",
                 "${player2.name} has won the game!",
-                resetBoard = { resetAfterFullRound() }
+                resetBoard = { resetGameState() }
             )
         }
     }
@@ -268,6 +273,45 @@ fun LocalGameScreen() {
         onDispose {
             // Unsubscribe when the composable is disposed
             unsubscribe()
+        }
+    }
+
+
+// Check if the gameMode is AI and handle player2 as an AI player
+    if (gameMode == GameModes.AI.mode && isAITurn) {
+        LaunchedEffect(Unit) {
+            val configTime = localPlay.gameConfig!!.timer ?: 3
+
+            isThinking = true
+            thinkingTime = (1..configTime).random() // Random delay between 1 and 3 seconds
+
+            // Simulate delay
+            delay(thinkingTime * 1000L)
+
+            val player2Difficulty = localPlay.players?.player2?.difficulty
+            val player1 = localPlay.players?.player1
+            val player2 = localPlay.players?.player2
+
+            if (player1 != null && player2 != null) {
+                val move = when (player2Difficulty) {
+                    "easy" -> generateEasyAIMove(localPlay.board)
+                    "medium" -> generateMediumAIMove(
+                        localPlay.board.toMutableMap(),
+                        player1,
+                        player2
+                    )
+
+                    "hard" -> generateHardAIMove(localPlay.board.toMutableMap(), player1, player2)
+                    else -> null
+                }
+
+                if (move != null) {
+                    handleCellClicked(move)
+                }
+            }
+
+            // Set isThinking to false after making the move
+            isThinking = false
         }
     }
 
@@ -293,6 +337,11 @@ fun LocalGameScreen() {
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            Text(
+                text = "I'm not thinking, just building suspense for ${thinkingTime} seconds",
+                color = if (isThinking && isAITurn) Color.Gray else Color.Transparent,
+                fontSize = 14.sp
+            )
             localPlay.currentPlayer?.mark?.let {
                 TicTacToeBoard(
                     label = localPlay.gameConfig!!.currentBoardType.value,
@@ -303,7 +352,8 @@ fun LocalGameScreen() {
                     className = "TicTacToeBoard",
                     player1Id = localPlay.players?.player1?.id,
                     player2Id = localPlay.players?.player1?.id,
-                    distortedMode = localPlay.gameConfig!!.distortedMode
+                    distortedMode = localPlay.gameConfig!!.distortedMode,
+                    disableBoard = gameMode == GameModes.AI.mode && isAITurn
                 )
             } ?: Text("Current player's mark doesn't exist.")
 

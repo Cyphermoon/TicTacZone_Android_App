@@ -42,3 +42,9 @@ val DEFAULT_GAME_CONFIG = GameConfigType(
     distortedMode = false,
     revealMode = false
 )
+
+sealed class GameModes(val mode: String){
+    object Local : GameModes("Local")
+    object Online : GameModes("Online")
+    object AI: GameModes("AI")
+}

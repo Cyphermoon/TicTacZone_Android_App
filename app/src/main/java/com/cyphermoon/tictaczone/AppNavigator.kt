@@ -11,9 +11,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -21,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -33,6 +36,9 @@ import com.cyphermoon.tictaczone.presentation.config_flow.ConfigScreen
 import com.cyphermoon.tictaczone.presentation.game_flow.AICharacters
 import com.cyphermoon.tictaczone.presentation.game_flow.LocalGameScreen
 import com.cyphermoon.tictaczone.presentation.game_flow.OnlineGameScreen
+import com.cyphermoon.tictaczone.presentation.game_flow.utils.resetAfterFullRound
+import com.cyphermoon.tictaczone.presentation.game_flow.utils.resetBoard
+import com.cyphermoon.tictaczone.redux.LocalPlayActions
 import com.cyphermoon.tictaczone.redux.store
 import com.cyphermoon.tictaczone.redux.userActions
 import kotlinx.coroutines.launch
@@ -43,6 +49,11 @@ fun AppNavigator() {
     // Create a NavController, which keeps track of the current navigation state
     val navController = rememberNavController()
     var selectedTab by rememberSaveable { mutableStateOf(0) }
+
+    var gameMode by remember { mutableStateOf(store.getState().gameMode.mode) }
+    var localPlay by remember { mutableStateOf(store.getState().localPlay) }
+
+
 
 
     // Get the application context
@@ -69,6 +80,39 @@ fun AppNavigator() {
                 }
             }
         }
+    }
+
+    DisposableEffect(key1 = store) {
+    val unsubscribe = store.subscribe {
+        // Update localPlay state whenever the state in the store changes
+        localPlay = store.getState().localPlay
+    }
+
+    onDispose {
+        // Unsubscribe when the composable is disposed
+        unsubscribe()
+    }
+}
+
+
+    // Reset the board if player 2 or the game mode changes
+    LaunchedEffect(
+        key1 = gameMode,
+        key2 = localPlay.players?.player2
+    ){
+
+        // Retrieve the player1 and player2 from the localPlay state
+        val player1 = localPlay.players?.player1
+        val player2 = localPlay.players?.player2
+
+        // Set Modal state to false
+
+
+        resetAfterFullRound(localPlay.gameConfig?.timer, player1, player2)
+
+        // Reset the board
+        store.dispatch(LocalPlayActions.UpdateBoard(resetBoard()))
+
     }
 
     Scaffold(
@@ -110,7 +154,7 @@ fun AppNavigator() {
                 }
                 // A composable function for AI Characters Screen
                 composable(ScreenRoutes.AICharacters.route) {
-                    AICharacters()
+                    AICharacters(navController = navController)
                 }
 
                 // A composable function for Online Game Screen

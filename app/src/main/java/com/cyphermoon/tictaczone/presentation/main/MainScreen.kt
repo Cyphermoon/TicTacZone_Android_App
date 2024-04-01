@@ -18,12 +18,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.cyphermoon.tictaczone.GameModes
 import com.cyphermoon.tictaczone.ScreenRoutes
 import com.cyphermoon.tictaczone.presentation.main.components.Logo
 import com.cyphermoon.tictaczone.presentation.main.components.ProfileStatsCard
 import com.cyphermoon.tictaczone.presentation.auth_flow.FirebaseUserData
 import com.cyphermoon.tictaczone.presentation.auth_flow.GoogleAuthenticator
 import com.cyphermoon.tictaczone.presentation.main.components.LocalOption
+import com.cyphermoon.tictaczone.redux.GameMode
+import com.cyphermoon.tictaczone.redux.GameModeActions
 import com.cyphermoon.tictaczone.redux.GamePlayerProps
 import com.cyphermoon.tictaczone.redux.LocalPlayersProps
 import com.cyphermoon.tictaczone.redux.Player
@@ -49,30 +52,46 @@ fun MainScreen(navController: NavController, userData: FirebaseUserData?) {
 
     var userState by remember { mutableStateOf(store.getState().user) }
 
-    fun handleLocalPlayerUpdateConfig(player2: Player): Unit {
-        val player1 = GamePlayerProps(
-            id = userState.id,
-            name = userState.name,
-            mark = "X",
-            score = 0,
-        )
-        store.dispatch(
-            LocalPlayActions.UpdatePlayers(
-                LocalPlayersProps(
-                    player1 = player1,
-                    player2 = GamePlayerProps(
-                        id = player2.id,
-                        name = player2.name,
-                        mark = "O",
-                        score = 0,
-                    )
+    // This function is used to handle the configuration update for local player.
+// It takes a Player object as input, which represents the second player in the game.
+fun handleLocalPlayerUpdateConfig(player2: Player): Unit {
+    // Create a GamePlayerProps object for the first player.
+    // The ID and name are taken from the current user state.
+    // The mark is set to "X" and the score is initialized to 0.
+    val player1 = GamePlayerProps(
+        id = userState.id,
+        name = userState.name,
+        mark = "X",
+        score = 0,
+    )
+
+    // Dispatch an action to update the players in the local play configuration.
+    // The players are set to the newly created player1 and the input player2.
+    store.dispatch(
+        LocalPlayActions.UpdatePlayers(
+            LocalPlayersProps(
+                player1 = player1,
+                player2 = GamePlayerProps(
+                    id = player2.id,
+                    name = player2.name,
+                    mark = "O",
+                    score = 0,
                 )
             )
         )
+    )
 
-        store.dispatch(LocalPlayActions.UpdateCurrentPlayer(player1))
-        navController.navigate(ScreenRoutes.ConfigScreen.route)
-    }
+    // Dispatch an action to update the current player in the local play configuration.
+    // The current player is set to player1.
+    store.dispatch(LocalPlayActions.UpdateCurrentPlayer(player1))
+
+    // Dispatch an action to update the game mode in the game mode configuration.
+    // The game mode is set to Local.
+    store.dispatch(GameModeActions.UpdateGameMode(GameMode(mode = GameModes.Local.mode)))
+
+    // Navigate to the ConfigScreen route.
+    navController.navigate(ScreenRoutes.ConfigScreen.route)
+}
 
     //Subscribe to the store
     DisposableEffect(key1 = store.getState().user) {

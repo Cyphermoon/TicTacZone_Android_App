@@ -130,6 +130,26 @@ fun showGameStateDialog(context: Context, title: String, message: String, resetB
         .show() // Show the AlertDialog
 }
 
+fun resetAfterFullRound(configTimer: Int?, player1: GamePlayerProps?, player2: GamePlayerProps?, onFinish: (() -> Unit)? = null) {
+
+    // Check if both players are not null
+    if (player1 == null || player2 == null) return
+
+    // If both players are not null, reset their scores to 0
+    // Dispatch an action to update player1's score in the state
+    store.dispatch(LocalPlayActions.UpdatePlayer1(player1.copy(score = 0)))
+    // Dispatch an action to update player2's score in the state
+    store.dispatch(LocalPlayActions.UpdatePlayer2(player2.copy(score = 0)))
+    // Dispatch an action to update the current round to 1
+    store.dispatch(LocalPlayActions.UpdateCurrentRound(1))
+    //Dispatch an action to reset the countdown
+    store.dispatch(LocalPlayActions.UpdateCountdown(configTimer ?: 5))
+
+    if (onFinish != null) {
+        onFinish()
+    }
+}
+
 // TimerUtils is a utility object that provides functions to start and stop a timer.
 object TimerUtils {
     // A nullable Timer variable that will hold the instance of the timer when it's started.
@@ -170,6 +190,164 @@ fun shuffleBoard(board: Map<String, String>, seed: String): List<String> {
     val random = Random(seed.hashCode())
     // Shuffle the keys of the board map using the random number generator and return the shuffled list.
     return board.keys.shuffled(random)
+}
+
+
+
+// AI Related functions
+/**
+ * This function generates a move for the AI player.
+ * It selects a random position from the available positions on the board.
+ * @param board The current state of the game board.
+ * @return The position for the AI's move.
+ */
+fun generateEasyAIMove(board: Map<String, String>): String {
+    // Get the list of empty cells on the board
+    val availablePositions = getEmptyCells(board)
+
+    // Select a random position from the available positions
+    val randomPosition = availablePositions.random()
+
+    // Return the selected position
+    return randomPosition
+}
+
+/**
+ * This function generates a move for the medium difficulty AI player.
+ * It first checks for a winning move for the AI, then for a winning move for the human player.
+ * If no winning move is found, it selects a random position from the available positions on the board.
+ * @param board The current state of the game board.
+ * @param player1 The human player.
+ * @param player2 The AI player.
+ * @return The position for the AI's move.
+ */
+fun generateMediumAIMove(board: MutableMap<String, String>, player1: GamePlayerProps, player2: GamePlayerProps): String {
+    val availablePositions = getEmptyCells(board)
+    var aiMove: String? = null
+
+    for (position in availablePositions) {
+        val humanSimulationBoard = board.toMutableMap()
+        humanSimulationBoard[position] = player1.mark ?: ""
+
+        val aiSimulationBoard = board.toMutableMap()
+        aiSimulationBoard[position] = player2.mark ?: ""
+
+        // Check for winning move for AI
+        if (checkWinningMove(aiSimulationBoard, player2.mark ?: "")) {
+            aiMove = position
+            break
+        }
+
+        // Check for winning move for human
+        if (checkWinningMove(humanSimulationBoard, player1.mark ?: "")) {
+            aiMove = position
+        }
+    }
+
+    // If no winning move found, choose a random position
+    if (aiMove == null) {
+        aiMove = availablePositions.random()
+    }
+
+    return aiMove
+}
+
+/**
+ * This function generates a move for the hard difficulty AI player.
+ * It uses the minimax algorithm to determine the best move.
+ * If the board is empty, it selects a random position.
+ * @param board The current state of the game board.
+ * @param player1 The human player.
+ * @param player2 The AI player.
+ * @return The position for the AI's move.
+ */
+fun generateHardAIMove(board: MutableMap<String, String>, player1: GamePlayerProps, player2: GamePlayerProps): String {
+    val availablePositions = getEmptyCells(board)
+    var move: String
+
+    // Assign random position if board is empty otherwise use minimax algorithm
+    if (availablePositions.size == 9) {
+        move = generateEasyAIMove(board)
+    } else {
+        move = minimax(board, true, player1, player2)["position"].toString()
+    }
+
+    // Ensure move is a string
+    if (move is String)
+        return move
+
+    return ""
+}
+
+/**
+ * This function implements the MiniMax algorithm.
+ * It recursively evaluates each move and selects the best one.
+ * @param board The current state of the game board.
+ * @param isMaximizingPlayer A boolean indicating whether the current player is the maximizing player.
+ * @param player1 The human player.
+ * @param player2 The AI player.
+ * @return A map containing the score of the best move and the position of the best move.
+ */
+fun minimax(board: MutableMap<String, String>, isMaximizingPlayer: Boolean, player1: GamePlayerProps, player2: GamePlayerProps): Map<String, Any?> {
+    // Check if player1 has won
+    if (checkWinningMove(board, player1.mark ?: "")) {
+        return mapOf("score" to -1, "position" to null)
+    }
+    // Check if player2 has won
+    else if (checkWinningMove(board, player2.mark ?: "")) {
+        return mapOf("score" to 1, "position" to null)
+    }
+    // Check if it's a draw
+    else if (checkIfBoardIsFull(board)) {
+        return mapOf("score" to 0, "position" to null)
+    }
+
+    if (isMaximizingPlayer) {
+        var bestScore = Int.MIN_VALUE
+        var bestPosition: String? = null
+
+        // Iterate through each position on the board
+        for (position in board.keys) {
+            if (board[position].isNullOrEmpty()) {
+                // Make a move for player2
+                board[position] = player2.mark ?: ""
+                // Recursively call minimax for the next move
+                val state = minimax(board, false, player1, player2)
+                // Undo the move
+                board[position] = ""
+
+                // Update the best score and position if the current move is better
+                if (state["score"] as Int > bestScore) {
+                    bestScore = state["score"] as Int
+                    bestPosition = position
+                }
+            }
+        }
+        return mapOf("score" to bestScore, "position" to bestPosition)
+
+    } else {
+        var bestScore = Int.MAX_VALUE
+        var bestPosition: String? = null
+
+        // Iterate through each position on the board
+        for (position in board.keys) {
+            if (board[position].isNullOrEmpty()) {
+                // Make a move for player1
+                board[position] = player1.mark ?: ""
+                // Recursively call minimax for the next move
+                val state = minimax(board, true, player1, player2)
+                // Undo the move
+                board[position] = ""
+
+                // Update the best score and position if the current move is better
+                if ((state["score"] as Int) < bestScore){
+                    bestScore = state["score"] as Int
+                    bestPosition = position
+                }
+            }
+        }
+        return mapOf("score" to bestScore, "position" to bestPosition)
+    }
 }
 
 

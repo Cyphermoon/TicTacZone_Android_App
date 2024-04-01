@@ -29,9 +29,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -43,6 +45,8 @@ import com.cyphermoon.tictaczone.ALL_GAME_BOARD
 import com.cyphermoon.tictaczone.BoardType
 import com.cyphermoon.tictaczone.DEFAULT_GAME_CONFIG
 import com.cyphermoon.tictaczone.GameConfigType
+import com.cyphermoon.tictaczone.GameModes
+import com.cyphermoon.tictaczone.redux.store
 import com.cyphermoon.tictaczone.ui.theme.Accent
 import com.cyphermoon.tictaczone.ui.theme.LightSecondary
 @OptIn(ExperimentalMaterial3Api::class)
@@ -63,6 +67,16 @@ fun GameConfigBoard(
     val selectedBoardType by remember { mutableStateOf(game.currentBoardType) }
 
     val isDropdownMenuExpanded = remember { mutableStateOf(false) }
+
+    var gameMode by remember { mutableStateOf(store.getState().gameMode) }
+
+    DisposableEffect(key1 = store.state.gameMode) {
+        val unsubscribe = store.subscribe {
+            gameMode = store.state.gameMode
+        }
+
+        onDispose { unsubscribe() }
+    }
 
     fun toggleDropdownMenu() {
         isDropdownMenuExpanded.value = !isDropdownMenuExpanded.value
@@ -170,19 +184,21 @@ fun GameConfigBoard(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Display the distorted mode switch
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(text = "Distorted Mode", style = MaterialTheme.typography.labelMedium)
-            Spacer(modifier = Modifier.width(16.dp))
+        if(gameMode.mode != GameModes.AI.mode) {
+            // Display the distorted mode switch
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(text = "Distorted Mode", style = MaterialTheme.typography.labelMedium)
+                Spacer(modifier = Modifier.width(16.dp))
 
-            Switch(
-                checked = distortedMode.value,
-                onCheckedChange = { distortedMode.value = it; onDistortedModeChange(it) },
-                colors = SwitchDefaults.colors(
-                    checkedThumbColor = MaterialTheme.colorScheme.secondary,
-                    checkedTrackColor = MaterialTheme.colorScheme.tertiary,
+                Switch(
+                    checked = distortedMode.value,
+                    onCheckedChange = { distortedMode.value = it; onDistortedModeChange(it) },
+                    colors = SwitchDefaults.colors(
+                        checkedThumbColor = MaterialTheme.colorScheme.secondary,
+                        checkedTrackColor = MaterialTheme.colorScheme.tertiary,
+                    )
                 )
-            )
+            }
         }
 
         Spacer(modifier = Modifier.height(16.dp))

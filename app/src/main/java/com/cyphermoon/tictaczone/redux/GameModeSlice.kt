@@ -2,7 +2,7 @@ package com.cyphermoon.tictaczone.redux
 
 // This data class represents the game mode in the application.
 data class GameMode(
-    val gameMode: String? = null
+    val mode: String? = null
 )
 
 // This class contains the initial state and reducer function for the game mode slice of the state.
