@@ -87,8 +87,9 @@ fun TicTacToeBoard(
                 modifier = Modifier
                     .fillMaxSize() // Fill the maximum available space
                     .aspectRatio(1f) // Maintain an aspect ratio of 1:1 for the Canvas
-                    .pointerInput(true) { // Enable pointer input
+                    .pointerInput(disableBoard) { // Enable pointer input
                         detectTapGestures { // Detect tap gestures
+                            Log.d("TicTacToeBoard", "disableBoard: $disableBoard") // Add this line
                             if(disableBoard == false){
                                 // Calculate the x and y coordinates of the tap
                                 val x = (3 * it.x.toInt() / size.width)

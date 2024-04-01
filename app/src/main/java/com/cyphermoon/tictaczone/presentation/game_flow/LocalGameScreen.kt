@@ -1,6 +1,5 @@
 package com.cyphermoon.tictaczone.presentation.game_flow
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -8,12 +7,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -37,7 +36,6 @@ import com.cyphermoon.tictaczone.presentation.game_flow.utils.isValidMove
 import com.cyphermoon.tictaczone.presentation.game_flow.utils.resetAfterFullRound
 import com.cyphermoon.tictaczone.presentation.game_flow.utils.resetBoard
 import com.cyphermoon.tictaczone.presentation.game_flow.utils.showGameStateDialog
-import com.cyphermoon.tictaczone.redux.GamePlayerProps
 import com.cyphermoon.tictaczone.redux.LocalPlayActions
 import com.cyphermoon.tictaczone.redux.store
 import kotlinx.coroutines.delay
@@ -54,11 +52,11 @@ fun LocalGameScreen() {
 
     val timerPercentage =
         (localPlay.countdown.toDouble() / localPlay.gameConfig!!.timer.toDouble() * 100).roundToInt()
-    var gameMode by remember { mutableStateOf(store.getState().gameMode.mode) }
+    val gameMode by remember { mutableStateOf(store.getState().gameMode.mode) }
     val context = LocalContext.current
     val isAITurn = localPlay.currentPlayer?.id == localPlay.players?.player2?.id
     var isThinking by remember { mutableStateOf(false) }
-    var thinkingTime by remember { mutableStateOf(0) }
+    var thinkingTime by remember { mutableIntStateOf(0) }
 
 
     /**
@@ -280,7 +278,7 @@ fun LocalGameScreen() {
 // Check if the gameMode is AI and handle player2 as an AI player
     if (gameMode == GameModes.AI.mode && isAITurn) {
         LaunchedEffect(Unit) {
-            val configTime = localPlay.gameConfig!!.timer ?: 3
+            val configTime = localPlay.gameConfig!!.timer - 2
 
             isThinking = true
             thinkingTime = (1..configTime).random() // Random delay between 1 and 3 seconds
@@ -338,7 +336,7 @@ fun LocalGameScreen() {
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "I'm not thinking, just building suspense for ${thinkingTime} seconds",
+                text = "I'm not thinking, just building suspense for $thinkingTime seconds",
                 color = if (isThinking && isAITurn) Color.Gray else Color.Transparent,
                 fontSize = 14.sp
             )
@@ -353,7 +351,7 @@ fun LocalGameScreen() {
                     player1Id = localPlay.players?.player1?.id,
                     player2Id = localPlay.players?.player1?.id,
                     distortedMode = localPlay.gameConfig!!.distortedMode,
-                    disableBoard = gameMode == GameModes.AI.mode && isAITurn
+                    disableBoard = isThinking && isAITurn
                 )
             } ?: Text("Current player's mark doesn't exist.")
 

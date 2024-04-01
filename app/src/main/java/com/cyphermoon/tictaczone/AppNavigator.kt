@@ -54,8 +54,6 @@ fun AppNavigator() {
     var localPlay by remember { mutableStateOf(store.getState().localPlay) }
 
 
-
-
     // Get the application context
     val applicationContext = LocalContext.current
 
@@ -98,21 +96,17 @@ fun AppNavigator() {
     // Reset the board if player 2 or the game mode changes
     LaunchedEffect(
         key1 = gameMode,
-        key2 = localPlay.players?.player2
+        key2 = localPlay.players?.player2?.difficulty
     ){
 
         // Retrieve the player1 and player2 from the localPlay state
         val player1 = localPlay.players?.player1
         val player2 = localPlay.players?.player2
 
-        // Set Modal state to false
-
-
         resetAfterFullRound(localPlay.gameConfig?.timer, player1, player2)
 
         // Reset the board
         store.dispatch(LocalPlayActions.UpdateBoard(resetBoard()))
-
     }
 
     Scaffold(
@@ -127,8 +121,6 @@ fun AppNavigator() {
         }
     ) {paddingValues ->
         Box(modifier = Modifier.padding(paddingValues)) {
-
-
             // The NavHost is a composable that contains all of the destinations in this app
             // It takes in the NavController and the route of the start destination
             NavHost(
