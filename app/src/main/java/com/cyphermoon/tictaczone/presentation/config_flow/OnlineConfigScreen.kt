@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.cyphermoon.tictaczone.DEFAULT_GAME_CONFIG
 import com.cyphermoon.tictaczone.ScreenRoutes
+import com.cyphermoon.tictaczone.presentation.config_flow.composables.GameChat
 import com.cyphermoon.tictaczone.presentation.config_flow.composables.GameConfigBoard
 import com.cyphermoon.tictaczone.presentation.config_flow.composables.VersusPlayerCard
 import com.cyphermoon.tictaczone.presentation.config_flow.composables.ViewModeType
@@ -115,6 +116,16 @@ fun OnlineConfigScreen(navController: NavController, gameId: String?) {
             onDistortedModeChange = { newDistortedMode -> handleDistortedModeChange(newDistortedMode, gameId!!, scope) },
             onBoardTypeChange = { newBoardTypeId -> handleBoardTypeChange(newBoardTypeId, gameId!!, scope) }
         )
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        gameData?.currentPlayer?.let {
+            GameChat(
+                gameId = gameId!!,
+                currentPlayerId = it.id,
+                currentPlayerName = it.name
+            )
+        }
 
     }
 }

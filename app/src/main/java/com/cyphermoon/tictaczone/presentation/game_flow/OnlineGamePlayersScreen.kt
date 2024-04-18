@@ -24,6 +24,7 @@ import com.cyphermoon.tictaczone.DEFAULT_GAME_CONFIG
 import com.cyphermoon.tictaczone.ScreenRoutes
 import com.cyphermoon.tictaczone.presentation.game_flow.utils.OnlineGameData
 import com.cyphermoon.tictaczone.presentation.game_flow.utils.Player
+import com.cyphermoon.tictaczone.presentation.game_flow.utils.createChat
 import com.cyphermoon.tictaczone.presentation.game_flow.utils.updateOrGetGame
 import com.cyphermoon.tictaczone.presentation.main.components.Logo
 import com.cyphermoon.tictaczone.presentation.main.components.ProfileStatsCard
@@ -36,7 +37,6 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-
 
 // This is a suspending function that fetches all users from the Firestore database
 suspend fun fetchAllUsers(currentId: String): List<PlayerProps> {
@@ -139,6 +139,7 @@ fun OnlineGamePlayersScreen(navController: NavController) {
             try {
                 updateOrGetGame(gameId, gameData)
                 GameModeActions.UpdateGameMode(GameMode(mode = "online"))
+                createChat(gameId, listOf(currentPlayer.id, selectedPlayer.id))
                 navController.navigate("${ScreenRoutes.OnlineGameConfigGameScreen.route}/$gameId")
             } catch (err: Exception) {
                 println("Error: $err")

@@ -43,6 +43,34 @@ fun playerToGamePlayerProps(player: Player): GamePlayerProps {
     )
 }
 
+
+
+// Declare a suspending function to create a chat
+suspend fun createChat(chatId: String, participants: List<String>) {
+    // Get an instance of the Firestore database
+    val firestoreDB = FirebaseFirestore.getInstance()
+
+    // Get a reference to the chat document in the 'chats' collection
+    val chatDocRef = firestoreDB.collection("chats").document(chatId)
+
+    // Fetch the chat document from Firestore and wait for the operation to complete
+    val chatDocSnapShot = chatDocRef.get().await()
+
+    // If the chat document already exists, exit the function
+    if(chatDocSnapShot.exists()) {
+        return
+    }
+
+    // Prepare the data for the new chat document
+    val chatData = hashMapOf(
+        "participants" to participants,
+        "timestamp" to Timestamp.now()
+    )
+
+    // Set the data for the new chat document in Firestore and wait for the operation to complete
+    chatDocRef.set(chatData).await()
+}
+
 fun handleTimerChange(newTimer: Int, gameId: String, scope: CoroutineScope) {
     scope.launch {
         // Get an instance of the Firestore database

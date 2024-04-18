@@ -72,6 +72,8 @@ dependencies {
     implementation("org.reduxkotlin:redux-kotlin-thunk-android:0.6.0")
     //redux-kotlin-compose
     implementation("org.reduxkotlin:redux-kotlin-thunk-android:0.6.0")
+    // Coroutines
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
     //Native dependencies
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
