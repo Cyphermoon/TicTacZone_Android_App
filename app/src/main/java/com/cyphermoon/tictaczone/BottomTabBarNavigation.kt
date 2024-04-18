@@ -18,6 +18,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.cyphermoon.tictaczone.ui.theme.LightSecondary
@@ -25,7 +26,7 @@ import com.cyphermoon.tictaczone.ui.theme.Primary
 
 @Composable
 fun BottomTabBarNavigation (selectedIdx: Int, onTabSelected: (Int) -> Unit, navController: NavController) {
-    val items by rememberSaveable{mutableStateOf(listOf(
+    val items = listOf(
         BottomTabNavigationItem(
             route = ScreenRoutes.MainScreen.route,
             selectedIcon = Icons.Filled.Home,
@@ -44,7 +45,7 @@ fun BottomTabBarNavigation (selectedIdx: Int, onTabSelected: (Int) -> Unit, navC
             unselectedIcon = Icons.Outlined.Place,
             title = "Online Mode"
         ),
-    ))}
+    )
 
     NavigationBar(
         containerColor = MaterialTheme.colorScheme.tertiary,
@@ -59,8 +60,9 @@ fun BottomTabBarNavigation (selectedIdx: Int, onTabSelected: (Int) -> Unit, navC
                     unselectedIconColor = LightSecondary
                 ),
                 icon = {
+                    val icon = if(index == selectedIdx) item.selectedIcon else item.unselectedIcon
                     Icon(
-                        imageVector = if(index == selectedIdx) item.selectedIcon else item.unselectedIcon,
+                        imageVector = icon,
                         contentDescription = item.title,
                     )
 
@@ -83,7 +85,6 @@ fun BottomTabBarNavigation (selectedIdx: Int, onTabSelected: (Int) -> Unit, navC
     }
 
 }
-
 
 // Bottom Tab Navigation Item Class
 
