@@ -106,7 +106,6 @@ fun OnlineConfigScreen(navController: NavController, gameId: String?) {
 
         Spacer(modifier = Modifier.height(20.dp))
 
-
         GameConfigBoard(
             game = gameData?.config ?: DEFAULT_GAME_CONFIG,
             mode = ViewModeType.EDIT,
@@ -116,5 +115,6 @@ fun OnlineConfigScreen(navController: NavController, gameId: String?) {
             onDistortedModeChange = { newDistortedMode -> handleDistortedModeChange(newDistortedMode, gameId!!, scope) },
             onBoardTypeChange = { newBoardTypeId -> handleBoardTypeChange(newBoardTypeId, gameId!!, scope) }
         )
+
     }
 }

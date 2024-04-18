@@ -258,7 +258,7 @@ fun OnlineGameScreen(navController: NavController, gameId: String?) {
     }
 
     // Countdown timer logic
-    DisposableEffect(key1 = onlineGameData?.countdown, key2 = onlineGameData?.currentPlayer?.id) {
+    DisposableEffect(key1 = onlineGameData?.countdown, key2 = onlineGameData?.currentPlayer?.id, key3=onlineGameData?.pause) {
         var intervalJob: Job? = null
         if(gameId != null) {
             onlineGameData?.let { game ->
@@ -266,10 +266,6 @@ fun OnlineGameScreen(navController: NavController, gameId: String?) {
                     intervalJob = currentCoroutineScope.launch {
                         while (game.countdown > 0 && !game.pause) {
                             delay(1000) // wait for 1
-                            Log.v(
-                                "OnlineGameScreen",
-                                "Countdown: ${onlineGameData?.countdown} after countdown updating..."
-                            )
                             if (game.pause === true) continue // skip this iteration if the game is paused
                             updateCountdown(gameId ?: "", game.countdown - 1)
                         }
@@ -285,10 +281,12 @@ fun OnlineGameScreen(navController: NavController, gameId: String?) {
                             firestoreDB,
                             gameId ?: "",
                             scope = currentCoroutineScope
-                        )
-                        updateTotalRounds(gameId, game.totalRounds + 1)
-                        switchPlayer(gameId, game.currentPlayer, game.player1, game.player2)
-                        updateCountdown(gameId, game.config.timer)
+                        ){
+                            updateTotalRounds(gameId, game.totalRounds + 1)
+                            switchPlayer(gameId, game.currentPlayer, game.player1, game.player2)
+                            updateCountdown(gameId, game.config.timer)
+                        }
+
                     }
                 }
             }

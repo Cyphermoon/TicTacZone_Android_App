@@ -179,7 +179,8 @@ fun increaseOtherPlayerOnlineScore(
     player2: Player,
     firestoreDB: FirebaseFirestore,
     gameId: String,
-    scope: CoroutineScope
+    scope: CoroutineScope,
+    onSuccess: () -> Unit,
 ) {
     val gameRef = firestoreDB.collection("games").document(gameId)
 
@@ -192,6 +193,7 @@ fun increaseOtherPlayerOnlineScore(
                 val newScore = player1.score + 1
                 gameRef.update("player1.score", newScore).await()
             }
+            onSuccess()
         } catch (e: Exception) {
             // Handle the exception here
             println("Error updating score: ${e.message}")
