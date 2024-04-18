@@ -1,18 +1,18 @@
 package com.cyphermoon.tictaczone
 
 data class BoardType(
-    val dimension: String,
-    val value: String,
-    val id: String
+    val dimension: String = DEFAULT_GAME_CONFIG.currentBoardType.dimension,
+    val value: String = DEFAULT_GAME_CONFIG.currentBoardType.value,
+    val id: String = DEFAULT_GAME_CONFIG.currentBoardType.id,
 )
 
 data class GameConfigType(
-    val currentBoardType: BoardType,
-    val timer: Int,
-    val totalRounds: Int,
-    val roundsToWin: Int,
-    val distortedMode: Boolean,
-    val revealMode: Boolean
+    val currentBoardType: BoardType = DEFAULT_GAME_CONFIG.currentBoardType,
+    val timer: Int = DEFAULT_GAME_CONFIG.timer,
+    val totalRounds: Int = DEFAULT_GAME_CONFIG.totalRounds,
+    val roundsToWin: Int = DEFAULT_GAME_CONFIG.roundsToWin,
+    val distortedMode: Boolean = DEFAULT_GAME_CONFIG.distortedMode,
+    val revealMode: Boolean = DEFAULT_GAME_CONFIG.revealMode
 )
 
 data class AllGameBoardData(

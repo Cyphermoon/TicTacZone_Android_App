@@ -39,7 +39,7 @@ fun BottomTabBarNavigation (selectedIdx: Int, onTabSelected: (Int) -> Unit, navC
             title = "AI Mode"
         ),
         BottomTabNavigationItem(
-            route = ScreenRoutes.OnlineGameScreen.route,
+            route = ScreenRoutes.OnlineGamePlayersScreen.route,
             selectedIcon = Icons.Filled.Place,
             unselectedIcon = Icons.Outlined.Place,
             title = "Online Mode"

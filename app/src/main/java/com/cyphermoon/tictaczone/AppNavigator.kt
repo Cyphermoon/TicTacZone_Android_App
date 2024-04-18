@@ -33,8 +33,10 @@ import com.cyphermoon.tictaczone.presentation.main.MainScreen
 import com.cyphermoon.tictaczone.presentation.auth_flow.AuthStateViewModel
 import com.cyphermoon.tictaczone.presentation.auth_flow.GoogleAuthenticator
 import com.cyphermoon.tictaczone.presentation.config_flow.ConfigScreen
+import com.cyphermoon.tictaczone.presentation.config_flow.OnlineConfigScreen
 import com.cyphermoon.tictaczone.presentation.game_flow.AICharacters
 import com.cyphermoon.tictaczone.presentation.game_flow.LocalGameScreen
+import com.cyphermoon.tictaczone.presentation.game_flow.OnlineGamePlayersScreen
 import com.cyphermoon.tictaczone.presentation.game_flow.OnlineGameScreen
 import com.cyphermoon.tictaczone.presentation.game_flow.utils.resetAfterFullRound
 import com.cyphermoon.tictaczone.presentation.game_flow.utils.resetBoard
@@ -150,9 +152,24 @@ fun AppNavigator() {
                 }
 
                 // A composable function for Online Game Screen
-                composable(ScreenRoutes.OnlineGameScreen.route) {
-                    OnlineGameScreen()
+                composable("${ScreenRoutes.OnlineGameScreen.route}/{gameId}") { backStackEntry ->
+                    val gameId = backStackEntry.arguments?.getString("gameId")
+                    OnlineGameScreen(navController, gameId)
                 }
+
+                // A composable function for Online Game Players Screen
+                composable(ScreenRoutes.OnlineGamePlayersScreen.route) {
+                    OnlineGamePlayersScreen(navController = navController)
+                }
+
+                // A composable function for Login Screen
+                composable("${ScreenRoutes.OnlineGameConfigGameScreen.route}/{gameId}"){ backStackEntry ->
+                    val gameId = backStackEntry.arguments?.getString("gameId")
+                    OnlineConfigScreen(navController = navController, gameId = gameId)
+
+                }
+
+                // A composable function for Login Screen
                 composable(ScreenRoutes.LoginScreen.route) {
                     val viewModel = viewModel<AuthStateViewModel>()
                     val state by viewModel.state.collectAsStateWithLifecycle()
