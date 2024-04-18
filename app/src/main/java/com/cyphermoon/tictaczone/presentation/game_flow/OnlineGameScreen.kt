@@ -15,7 +15,6 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -28,28 +27,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.cyphermoon.tictaczone.DEFAULT_BOARD
-import com.cyphermoon.tictaczone.DEFAULT_GAME_CONFIG
-import com.cyphermoon.tictaczone.GameModes
 import com.cyphermoon.tictaczone.presentation.game_flow.composables.PlayerScore
 import com.cyphermoon.tictaczone.presentation.game_flow.composables.ScoreBoard
 import com.cyphermoon.tictaczone.presentation.game_flow.composables.TicTacToeBoard
 import com.cyphermoon.tictaczone.presentation.game_flow.utils.GameHistoryProps
 import com.cyphermoon.tictaczone.presentation.game_flow.utils.OnlineGameData
-import com.cyphermoon.tictaczone.presentation.game_flow.utils.TimerUtils
 import com.cyphermoon.tictaczone.presentation.game_flow.utils.checkIfBoardIsFull
 import com.cyphermoon.tictaczone.presentation.game_flow.utils.checkWinningMove
 import com.cyphermoon.tictaczone.presentation.game_flow.utils.firestoreDB
-import com.cyphermoon.tictaczone.presentation.game_flow.utils.generateEasyAIMove
-import com.cyphermoon.tictaczone.presentation.game_flow.utils.generateHardAIMove
-import com.cyphermoon.tictaczone.presentation.game_flow.utils.generateMediumAIMove
 import com.cyphermoon.tictaczone.presentation.game_flow.utils.increaseOtherPlayerOnlineScore
-import com.cyphermoon.tictaczone.presentation.game_flow.utils.isValidMove
 import com.cyphermoon.tictaczone.presentation.game_flow.utils.playerToGamePlayerProps
-import com.cyphermoon.tictaczone.presentation.game_flow.utils.resetAfterFullRound
-import com.cyphermoon.tictaczone.presentation.game_flow.utils.resetBoard
 import com.cyphermoon.tictaczone.presentation.game_flow.utils.resetBoardOnline
 import com.cyphermoon.tictaczone.presentation.game_flow.utils.resetGameState
-import com.cyphermoon.tictaczone.presentation.game_flow.utils.resetScoreOnline
 import com.cyphermoon.tictaczone.presentation.game_flow.utils.setOnlineWinner
 import com.cyphermoon.tictaczone.presentation.game_flow.utils.showGameStateDialog
 import com.cyphermoon.tictaczone.presentation.game_flow.utils.switchPlayer
@@ -61,16 +50,14 @@ import com.cyphermoon.tictaczone.presentation.game_flow.utils.updatePlayerScore
 import com.cyphermoon.tictaczone.presentation.game_flow.utils.updatePlayerStats
 import com.cyphermoon.tictaczone.presentation.game_flow.utils.updatePositionInFirestore
 import com.cyphermoon.tictaczone.presentation.game_flow.utils.updateTotalRounds
-import com.cyphermoon.tictaczone.redux.LocalPlayActions
-import com.cyphermoon.tictaczone.redux.LocalPlayConfig
 import com.cyphermoon.tictaczone.redux.store
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import java.util.Timer
 import kotlin.concurrent.schedule
-import kotlin.math.roundToInt
 
 
 val onlineGameDataFlow = MutableStateFlow<OnlineGameData?>(null)
@@ -106,12 +93,7 @@ fun OnlineGameScreen(navController: NavController, gameId: String?) {
         if (gameId.isEmpty()) return
 
         setOnlineWinner(gameId, gameRep.player1)
-        showGameStateDialog(
-            context,
-            "Game Over",
-            "${gameRep.player1.name} has won the game!",
-            resetBoard = { resetGameState(gameId, gameRep) }
-        )
+
         updatePauseStatus(gameId, true)
 
         // Update the game history for both players
@@ -143,12 +125,6 @@ fun OnlineGameScreen(navController: NavController, gameId: String?) {
         if (gameId.isEmpty()) return
 
         setOnlineWinner(gameId, gameRep.player2)
-        showGameStateDialog(
-            context,
-            "Game Over",
-            "${gameRep.player2.name} has won the game!",
-            resetBoard = { resetGameState(gameId, gameRep) }
-        )
         updatePauseStatus(gameId, true)
 
         // Update the game history for both players
@@ -176,6 +152,14 @@ fun OnlineGameScreen(navController: NavController, gameId: String?) {
         updatePlayerStats(gameRep.player1.id, false)
     }
 
+    fun toggleDistortedGhost() {
+        if(onlineGameData!!.config.distortedMode) {
+            distortedGhost = true
+            Timer("DistortedGhost", false).schedule(3000) {
+                distortedGhost = false
+            }
+        }
+    }
 
     fun handleCellClicked(
         position: String,
@@ -252,6 +236,17 @@ fun OnlineGameScreen(navController: NavController, gameId: String?) {
         }
     }
 
+    LaunchedEffect(key1 = onlineGameData?.winner) {
+        if(onlineGameData?.winner != null && onlineGameData != null && gameId != null) {
+            showGameStateDialog(
+                context,
+                "Game Over",
+                "${onlineGameData!!.winner?.name} has won the game!",
+                resetBoard = {if(onlineGameData!!.winner?.id == currentState.id) resetGameState(gameId, onlineGameData!!) else Unit }
+            )
+        }
+    }
+
     LaunchedEffect(key1 = onlineGameData?.player1?.score, key2 = onlineGameData?.player2?.score) {
         onlineGameData?.let { game ->
             if (game.player1.score >= game.config.roundsToWin && currentState.id == game.player1.id) {
@@ -263,48 +258,47 @@ fun OnlineGameScreen(navController: NavController, gameId: String?) {
     }
 
     // Countdown timer logic
-//    LaunchedEffect(key1 = onlineGameData?.countdown, key2 = onlineGameData?.currentPlayer?.id) {
-//        if (gameId == null) return@LaunchedEffect
-//        onlineGameData?.let { game ->
-//            if (game.countdown != null && game.currentPlayer.id == currentState.id) {
-//                val intervalJob = launch {
-//                    while (game.countdown > 0 && !game.pause) {
-//                        delay(1000) // wait for 1
-//                        Log.v(
-//                            "OnlineGameScreen",
-//                            "Countdown: ${onlineGameData?.countdown} after countdown updating..."
-//                        )
-//                        if (game.pause === true) continue // skip this iteration if the game is paused
-//                        updateCountdown(gameId ?: "", game.countdown - 1)
-//                    }
-//                }
-//
-//                if (game.countdown == 0) {
-//                    intervalJob.cancel() // stop the countdown
-//                    // Increase other player's score, update total rounds and switch player
-//                    increaseOtherPlayerOnlineScore(
-//                        game.currentPlayer,
-//                        game.player1,
-//                        game.player2,
-//                        firestoreDB,
-//                        gameId ?: ""
-//                    )
-//                    updateTotalRounds(gameId, game.totalRounds + 1)
-//                    switchPlayer(gameId, game.currentPlayer, game.player1, game.player2)
-//                    updateCountdown(gameId, game.config.timer)
-//                }
-//            }
-//        }
-//    }
+    DisposableEffect(key1 = onlineGameData?.countdown, key2 = onlineGameData?.currentPlayer?.id) {
+        var intervalJob: Job? = null
+        if(gameId != null) {
+            onlineGameData?.let { game ->
+                if (game.countdown != null && game.currentPlayer.id == currentState.id) {
+                    intervalJob = currentCoroutineScope.launch {
+                        while (game.countdown > 0 && !game.pause) {
+                            delay(1000) // wait for 1
+                            Log.v(
+                                "OnlineGameScreen",
+                                "Countdown: ${onlineGameData?.countdown} after countdown updating..."
+                            )
+                            if (game.pause === true) continue // skip this iteration if the game is paused
+                            updateCountdown(gameId ?: "", game.countdown - 1)
+                        }
+                    }
 
-    fun toggleDistortedGhost() {
-        if(onlineGameData!!.config.distortedMode) {
-            distortedGhost = true
-            Timer("DistortedGhost", false).schedule(5000) {
-                distortedGhost = false
+                    if (game.countdown == 0) {
+                        intervalJob?.cancel() // stop the countdown
+                        // Increase other player's score, update total rounds and switch player
+                        increaseOtherPlayerOnlineScore(
+                            game.currentPlayer,
+                            game.player1,
+                            game.player2,
+                            firestoreDB,
+                            gameId ?: "",
+                            scope = currentCoroutineScope
+                        )
+                        updateTotalRounds(gameId, game.totalRounds + 1)
+                        switchPlayer(gameId, game.currentPlayer, game.player1, game.player2)
+                        updateCountdown(gameId, game.config.timer)
+                    }
+                }
             }
         }
+
+        onDispose{
+            intervalJob?.cancel()
+        }
     }
+
 
 
     Column(
@@ -325,8 +319,12 @@ fun OnlineGameScreen(navController: NavController, gameId: String?) {
             )
 
             Spacer(modifier = Modifier.height(16.dp))
-
-            onlineGameData!!.currentPlayer?.mark?.let {
+            Text(
+                text = "Currently Waiting for ${onlineGameData!!.winner?.name} to continue the game",
+                color = if (onlineGameData!!.winner?.id != null) Color.Gray else Color.Transparent,
+                fontSize = 14.sp
+            )
+            onlineGameData!!.currentPlayer.mark.let {
                 TicTacToeBoard(
                     label = onlineGameData!!.config.currentBoardType.value,
                     board = onlineGameData!!.board,
@@ -342,10 +340,10 @@ fun OnlineGameScreen(navController: NavController, gameId: String?) {
                     className = "TicTacToeBoard",
                     player1Id = onlineGameData!!.player1.id,
                     player2Id = onlineGameData!!.player2.id,
-                    distortedMode = onlineGameData!!.config!!.distortedMode,
-                    disableBoard = false
+                    distortedMode = onlineGameData!!.config.distortedMode,
+                    disableBoard = onlineGameData!!.winner?.id != null
                 )
-            } ?: Text("Current player's mark doesn't exist.")
+            }
 
             Spacer(modifier = Modifier.height(15.dp))
             ScoreBoard(

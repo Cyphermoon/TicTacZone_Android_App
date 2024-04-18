@@ -173,21 +173,29 @@ fun updateCountdown(gameId: String, countdown: Int) {
     gameRef.update("countdown", countdown)
 }
 
-suspend fun increaseOtherPlayerOnlineScore(
+fun increaseOtherPlayerOnlineScore(
     currentPlayer: Player,
     player1: Player,
     player2: Player,
     firestoreDB: FirebaseFirestore,
-    gameId: String
+    gameId: String,
+    scope: CoroutineScope
 ) {
     val gameRef = firestoreDB.collection("games").document(gameId)
 
-    if (currentPlayer.id == player1.id) {
-        val newScore = player2.score + 1
-        gameRef.update("player2.score", newScore).await()
-    } else {
-        val newScore = player1.score + 1
-        gameRef.update("player1.score", newScore).await()
+    scope.launch {
+        try {
+            if (currentPlayer.id == player1.id) {
+                val newScore = player2.score + 1
+                gameRef.update("player2.score", newScore).await()
+            } else {
+                val newScore = player1.score + 1
+                gameRef.update("player1.score", newScore).await()
+            }
+        } catch (e: Exception) {
+            // Handle the exception here
+            println("Error updating score: ${e.message}")
+        }
     }
 }
 
