@@ -1,6 +1,7 @@
 package com.cyphermoon.tictaczone.redux
 
 import com.cyphermoon.tictaczone.BoardType
+import com.cyphermoon.tictaczone.DEFAULT_BOARD
 import com.cyphermoon.tictaczone.DEFAULT_GAME_CONFIG
 import com.cyphermoon.tictaczone.GameConfigType
 
@@ -52,17 +53,7 @@ data class LocalPlayConfig(
     var currentPlayer: GamePlayerProps? = null,
     var countdown: Int = DEFAULT_GAME_CONFIG.timer,
 
-    var board: Map<String, String> = mapOf(
-        "1" to "",
-        "2" to "",
-        "3" to "",
-        "4" to "",
-        "5" to "",
-        "6" to "",
-        "7" to "",
-        "8" to "",
-        "9" to ""
-    ),
+    var board: Map<String, String> =  DEFAULT_BOARD,
     var draws: Int = 0,
     var currentRound: Int = 1
 )

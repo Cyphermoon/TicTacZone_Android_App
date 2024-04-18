@@ -28,16 +28,13 @@ import com.cyphermoon.tictaczone.ui.theme.LightSecondary
 fun PlayerScore(
     imageURL: String?,
     countdownText: String? = null,
-    countdown: Int?,
-    player1: GamePlayerProps,
-    player2: GamePlayerProps,
+    countdown: Int = 0,
+    totalTimer: Int = 100,
     currentPlayer: GamePlayerProps?,
-    setCurrentPlayer: (GamePlayerProps) -> Unit,
     handleDistortedMode: () -> Unit,
     distortedMode: Boolean = false
 ) {
-    // TODO: Implement the equivalent of the useEffect hook in Compose
-    // This might involve creating a custom effect using LaunchedEffect or DisposableEffect
+    val percentage = (countdown.toFloat() / totalTimer.toFloat())
 
     Column(
         modifier = Modifier
@@ -83,7 +80,7 @@ fun PlayerScore(
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(text = "Timer", style = MaterialTheme.typography.labelSmall)
                         // TODO: Implement CircularBar composable
-                        CircularProgress(percentage = countdown.toFloat() / 100, text= countdownText)
+                        CircularProgress(percentage = percentage, text= countdownText)
                     }
                 }
             }
@@ -106,12 +103,10 @@ fun PlayerScorePreview() {
 
     PlayerScore(
         imageURL = null,
-        countdown = 60,
-        countdownText = "5s",
-        player1 = player,
-        player2 = player,
+        countdown = 40,
+        totalTimer = 100,
+        countdownText = "4s",
         currentPlayer = player,
-        setCurrentPlayer = {},
         handleDistortedMode = {}
     )
 }

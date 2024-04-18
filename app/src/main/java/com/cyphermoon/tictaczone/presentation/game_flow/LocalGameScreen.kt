@@ -325,10 +325,7 @@ fun LocalGameScreen() {
                 imageURL = null,
                 countdown = timerPercentage,
                 countdownText = "${localPlay.countdown}s",
-                player1 = localPlay.players!!.player1!!,
-                player2 = localPlay.players!!.player2!!,
                 currentPlayer = localPlay.currentPlayer,
-                setCurrentPlayer = { store.dispatch(LocalPlayActions.UpdateCurrentPlayer(it)) },
                 handleDistortedMode = { toggleDistortedGhost() },
                 distortedMode = localPlay.gameConfig!!.distortedMode
             )

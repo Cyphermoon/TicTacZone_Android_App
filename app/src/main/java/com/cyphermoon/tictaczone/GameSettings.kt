@@ -43,6 +43,18 @@ val DEFAULT_GAME_CONFIG = GameConfigType(
     revealMode = false
 )
 
+val DEFAULT_BOARD = mapOf(
+    "1" to "",
+    "2" to "",
+    "3" to "",
+    "4" to "",
+    "5" to "",
+    "6" to "",
+    "7" to "",
+    "8" to "",
+    "9" to ""
+)
+
 sealed class GameModes(val mode: String){
     object Local : GameModes("Local")
     object Online : GameModes("Online")

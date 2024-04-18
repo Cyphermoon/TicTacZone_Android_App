@@ -18,7 +18,7 @@ data class OnlineGameData(
     val player1: Player = Player(),
     val player2: Player = Player(),
     val totalRounds: Int = 0,
-    val winner: String? = null
+    val winner: Player? = null
 )
 
 
@@ -30,4 +30,11 @@ data class Player(
     val photoURL: String? = null,
     val score: Int = 0,
     val view: String = ""
+)
+
+data class GameHistoryProps(
+    val opponent: String,
+    val gameType: String,
+    val firstToWin: Int,
+    val result: String
 )

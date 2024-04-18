@@ -123,9 +123,11 @@ fun TicTacToeBoard(
                     )
 
                     // Draw the player's mark in the cell
-                    when (player) {
-                        "X" -> drawX(center = center)
-                        "O" -> drawO(center = center)
+                    if (player != null) {
+                        when (player.lowercase()) {
+                            "x" -> drawX(center = center)
+                            "o" -> drawO(center = center)
+                        }
                     }
 
                     // If distortedGhost is true, draw the position number
