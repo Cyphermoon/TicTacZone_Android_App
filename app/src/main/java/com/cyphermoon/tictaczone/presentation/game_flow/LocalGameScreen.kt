@@ -344,7 +344,6 @@ fun LocalGameScreen() {
                     handleCellClicked = ::handleCellClicked,
                     currentMarker = it,
                     distortedGhost = distortedGhost,
-                    className = "TicTacToeBoard",
                     player1Id = localPlay.players?.player1?.id,
                     player2Id = localPlay.players?.player1?.id,
                     distortedMode = localPlay.gameConfig!!.distortedMode,

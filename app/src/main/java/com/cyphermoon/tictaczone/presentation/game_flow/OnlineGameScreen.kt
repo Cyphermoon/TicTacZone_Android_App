@@ -169,8 +169,8 @@ fun OnlineGameScreen(navController: NavController, gameId: String?) {
         // If the cell at the clicked position is not empty or if there is no online game ID, return
         if (onlineGameData.board[position] != "" || gameId.isEmpty()) return
 
-        // If the current player is not the one who is supposed to make the move, return
-//        if (onlineGameData.currentPlayer.id != currentPlayerId) return
+//         If the current player is not the one who is supposed to make the move, return
+        if (onlineGameData.currentPlayer.id != currentState.id) return
 
         // Update the specific position in the board in Firestore
         val newBoard = onlineGameData.board.toMutableMap()
@@ -319,11 +319,22 @@ fun OnlineGameScreen(navController: NavController, gameId: String?) {
             )
 
             Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = "Currently Waiting for ${onlineGameData!!.winner?.name} to continue the game",
-                color = if (onlineGameData!!.winner?.id != null) Color.Gray else Color.Transparent,
-                fontSize = 14.sp
-            )
+
+            if(onlineGameData!!.winner?.name != null){
+                Text(
+                    text = "Currently Waiting for ${onlineGameData!!.winner?.name} to continue the game",
+                    color = if (onlineGameData!!.winner?.id != null) Color.Gray else Color.Transparent,
+                    fontSize = 14.sp
+                )
+            }
+            if(onlineGameData!!.currentPlayer.id != currentState.id && onlineGameData!!.winner?.id == null){
+                Text(
+                    text = "Currently Waiting for ${onlineGameData!!.currentPlayer.name} to make a move",
+                    color = if (onlineGameData!!.currentPlayer.id != currentState.id) Color.Gray else Color.Transparent,
+                    fontSize = 14.sp
+                )
+            }
+
             onlineGameData!!.currentPlayer.mark.let {
                 TicTacToeBoard(
                     label = onlineGameData!!.config.currentBoardType.value,
@@ -337,7 +348,6 @@ fun OnlineGameScreen(navController: NavController, gameId: String?) {
                     },
                     currentMarker = it,
                     distortedGhost = distortedGhost,
-                    className = "TicTacToeBoard",
                     player1Id = onlineGameData!!.player1.id,
                     player2Id = onlineGameData!!.player2.id,
                     distortedMode = onlineGameData!!.config.distortedMode,

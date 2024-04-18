@@ -51,7 +51,6 @@ fun TicTacToeBoard(
     handleCellClicked: (String) -> Unit,
     currentMarker: String,
     distortedGhost: Boolean,
-    className: String,
     player1Id: String?,
     player2Id: String?,
     distortedMode: Boolean = false,
@@ -270,7 +269,6 @@ fun TicTacToeBoardPreview() {
         handleCellClicked = {},
         currentMarker = "X",
         distortedGhost = false,
-        className = "TicTacToeBoard",
         player1Id = "player1",
         player2Id = "player2",
         distortedMode = false
