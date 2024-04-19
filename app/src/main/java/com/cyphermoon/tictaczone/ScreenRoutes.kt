@@ -15,4 +15,5 @@ sealed class ScreenRoutes (val route: String) {
     object OnlineGameScreen: ScreenRoutes("online_game_screen")
     object OnlineGamePlayersScreen: ScreenRoutes("online_game_players_screen")
     object OnlineGameConfigGameScreen: ScreenRoutes("online_game_config_screen")
+    object GameHistoryScreen: ScreenRoutes("game_history")
 }

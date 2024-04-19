@@ -40,6 +40,7 @@ import com.cyphermoon.tictaczone.presentation.game_flow.OnlineGamePlayersScreen
 import com.cyphermoon.tictaczone.presentation.game_flow.OnlineGameScreen
 import com.cyphermoon.tictaczone.presentation.game_flow.utils.resetAfterFullRound
 import com.cyphermoon.tictaczone.presentation.game_flow.utils.resetBoard
+import com.cyphermoon.tictaczone.presentation.main.GameHistoryScreen
 import com.cyphermoon.tictaczone.redux.LocalPlayActions
 import com.cyphermoon.tictaczone.redux.store
 import com.cyphermoon.tictaczone.redux.userActions
@@ -167,6 +168,11 @@ fun AppNavigator() {
                     val gameId = backStackEntry.arguments?.getString("gameId")
                     OnlineConfigScreen(navController = navController, gameId = gameId)
 
+                }
+
+                // Composable function for History Screen
+                composable(ScreenRoutes.GameHistoryScreen.route){
+                    GameHistoryScreen()
                 }
 
                 // A composable function for Login Screen
