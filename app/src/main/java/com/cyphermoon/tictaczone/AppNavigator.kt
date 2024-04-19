@@ -71,7 +71,6 @@ fun AppNavigator() {
     }
 
     val coroutineScope = rememberCoroutineScope()
-    val user = googleAuthUiClient.getSignedInUser()
     val userRepository = UserRepository()
     val firebaseAuth = Firebase.auth
 

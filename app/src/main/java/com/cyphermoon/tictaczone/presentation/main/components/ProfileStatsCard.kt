@@ -56,7 +56,7 @@ fun ProfileStatsCard(
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 UserAvatar(imageUrl = null, name = name, id = id)
                 Text(text = name, fontWeight = FontWeight.Bold, fontSize = 20.sp)
