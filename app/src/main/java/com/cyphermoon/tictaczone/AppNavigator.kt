@@ -41,6 +41,7 @@ import com.cyphermoon.tictaczone.presentation.game_flow.OnlineGameScreen
 import com.cyphermoon.tictaczone.presentation.game_flow.utils.resetAfterFullRound
 import com.cyphermoon.tictaczone.presentation.game_flow.utils.resetBoard
 import com.cyphermoon.tictaczone.presentation.main.GameHistoryScreen
+import com.cyphermoon.tictaczone.redux.FirestoreOnlinePlayerProps
 import com.cyphermoon.tictaczone.redux.LocalPlayActions
 import com.cyphermoon.tictaczone.redux.PlayerProps
 import com.cyphermoon.tictaczone.redux.store
@@ -77,19 +78,29 @@ fun AppNavigator() {
     // Remember the AuthStateListener in a mutable state
     val authStateListener = remember {
         FirebaseAuth.AuthStateListener { firebaseAuth ->
-            val user = firebaseAuth.currentUser
-            if (user == null) {
-                // User is signed out
-                Log.d("FirebaseAuth", "User is signed out")
+            coroutineScope.launch {
+                val user = firebaseAuth.currentUser
+                if (user == null) {
+                    // User is signed out
+                    Log.d("FirebaseAuth", "User is signed out")
 
-                // reset redux state
-                store.dispatch(userActions.updateUser(PlayerProps()))
-            } else {
-                userRepository.listenForUserUpdates(userId = user.uid) { userProps ->
-                    Log.v("UserProps", userProps.toString())
+                    // reset redux state
+                    store.dispatch(userActions.updateUser(PlayerProps()))
+                } else {
 
-                    if (userProps != null) {
-                        store.dispatch(userActions.updateUser(userProps))
+                    userRepository.getOrCreateUser(userId = user.uid, user = FirestoreOnlinePlayerProps(
+                        id = user.uid,
+                        name = user.displayName ?: "",
+                        email = user.email ?: "",
+                        imageUrl = user.photoUrl.toString()
+
+                    ))
+                    userRepository.listenForUserUpdates(userId = user.uid) { userProps ->
+                        Log.v("UserProps", userProps.toString())
+
+                        if (userProps != null) {
+                            store.dispatch(userActions.updateUser(userProps))
+                        }
                     }
                 }
             }

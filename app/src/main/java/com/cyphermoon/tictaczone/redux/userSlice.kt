@@ -45,3 +45,16 @@ data class PlayerProps(
     val mark: String = "X",
     var localGameScore: Int = 0
 )
+
+data class FirestoreOnlinePlayerProps (
+    var id: String = "",
+    var name: String = "",
+    var isAnonymous: Boolean = true,
+    var matches: Int = 0,
+    var win: Int = 0,
+    var loss: Int = 0,
+    var email: String = "",
+    var imageUrl: String? = null,
+    var online: Boolean = false,
+)
+

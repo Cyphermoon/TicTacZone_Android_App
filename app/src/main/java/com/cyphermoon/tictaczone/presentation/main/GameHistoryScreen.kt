@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -52,10 +53,20 @@ fun setupGameHistoryListener(userId: String) {
 @Composable
 fun GameHistoryScreen(){
     val gameHistory by gameHistoryFlow.collectAsState()
-    val currentPlayerId by remember { mutableStateOf(store.getState().user.id) }
+    val currentPlayerId = remember { mutableStateOf(store.getState().user.id) }
 
-    LaunchedEffect(key1 = currentPlayerId){
-        setupGameHistoryListener(currentPlayerId)
+    LaunchedEffect(key1 = currentPlayerId.value){
+        setupGameHistoryListener(currentPlayerId.value)
+    }
+
+    DisposableEffect(key1 = store.getState().user.id) {
+        val unsubscribe = store.subscribe{
+            currentPlayerId.value = store.getState().user.id
+        }
+
+        onDispose {
+            unsubscribe()
+        }
     }
 
     Column {
