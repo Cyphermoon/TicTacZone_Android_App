@@ -22,7 +22,6 @@ import androidx.compose.ui.unit.sp
 fun Logo(name: String?) {
     Column(
         horizontalAlignment = Alignment.Start,
-        verticalArrangement = Arrangement.Center
     ) {
 
         Button(
@@ -31,12 +30,8 @@ fun Logo(name: String?) {
 
         ) {
             Row(
-
-                verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.wrapContentSize()
             ) {
-                // This is where  back arrow icon would go, if needed
-                // Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
 
                 // Concactenated text with different styles
                 Text(

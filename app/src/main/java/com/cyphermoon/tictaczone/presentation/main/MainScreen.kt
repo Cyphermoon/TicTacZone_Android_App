@@ -1,5 +1,6 @@
 package com.cyphermoon.tictaczone.presentation.main
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -11,6 +12,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -24,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -41,6 +46,7 @@ import com.cyphermoon.tictaczone.redux.LocalPlayersProps
 import com.cyphermoon.tictaczone.redux.Player
 import com.cyphermoon.tictaczone.redux.LocalPlayActions
 import com.cyphermoon.tictaczone.redux.store
+import kotlinx.coroutines.launch
 
 
 // A logout button
@@ -63,44 +69,44 @@ fun MainScreen(navController: NavController, userData: FirebaseUserData?) {
 
     // This function is used to handle the configuration update for local player.
 // It takes a Player object as input, which represents the second player in the game.
-fun handleLocalPlayerUpdateConfig(player2: Player): Unit {
-    // Create a GamePlayerProps object for the first player.
-    // The ID and name are taken from the current user state.
-    // The mark is set to "X" and the score is initialized to 0.
-    val player1 = GamePlayerProps(
-        id = userState.id,
-        name = userState.name,
-        mark = "X",
-        score = 0,
-    )
+    fun handleLocalPlayerUpdateConfig(player2: Player): Unit {
+        // Create a GamePlayerProps object for the first player.
+        // The ID and name are taken from the current user state.
+        // The mark is set to "X" and the score is initialized to 0.
+        val player1 = GamePlayerProps(
+            id = userState.id,
+            name = userState.name,
+            mark = "X",
+            score = 0,
+        )
 
-    // Dispatch an action to update the players in the local play configuration.
-    // The players are set to the newly created player1 and the input player2.
-    store.dispatch(
-        LocalPlayActions.UpdatePlayers(
-            LocalPlayersProps(
-                player1 = player1,
-                player2 = GamePlayerProps(
-                    id = player2.id,
-                    name = player2.name,
-                    mark = "O",
-                    score = 0,
+        // Dispatch an action to update the players in the local play configuration.
+        // The players are set to the newly created player1 and the input player2.
+        store.dispatch(
+            LocalPlayActions.UpdatePlayers(
+                LocalPlayersProps(
+                    player1 = player1,
+                    player2 = GamePlayerProps(
+                        id = player2.id,
+                        name = player2.name,
+                        mark = "O",
+                        score = 0,
+                    )
                 )
             )
         )
-    )
 
-    // Dispatch an action to update the current player in the local play configuration.
-    // The current player is set to player1.
-    store.dispatch(LocalPlayActions.UpdateCurrentPlayer(player1))
+        // Dispatch an action to update the current player in the local play configuration.
+        // The current player is set to player1.
+        store.dispatch(LocalPlayActions.UpdateCurrentPlayer(player1))
 
-    // Dispatch an action to update the game mode in the game mode configuration.
-    // The game mode is set to Local.
-    store.dispatch(GameModeActions.UpdateGameMode(GameMode(mode = GameModes.Local.mode)))
+        // Dispatch an action to update the game mode in the game mode configuration.
+        // The game mode is set to Local.
+        store.dispatch(GameModeActions.UpdateGameMode(GameMode(mode = GameModes.Local.mode)))
 
-    // Navigate to the ConfigScreen route.
-    navController.navigate(ScreenRoutes.ConfigScreen.route)
-}
+        // Navigate to the ConfigScreen route.
+        navController.navigate(ScreenRoutes.ConfigScreen.route)
+    }
 
     //Subscribe to the store
     DisposableEffect(key1 = store.getState().user) {
@@ -121,25 +127,40 @@ fun handleLocalPlayerUpdateConfig(player2: Player): Unit {
             .padding(16.dp)
             .verticalScroll(rememberScrollState())
     ) {
-        Row (
+        Row(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
-            .fillMaxWidth()
-        ){
-            Logo(name = null)
+                .fillMaxWidth()
+        ) {
+            Column {
 
-            Text(
-                modifier = Modifier
-                    .clickable(onClick = {
-                        navController.navigate(ScreenRoutes.GameHistoryScreen.route)
-                    }),
-                text = "Game History",
-                color = Color.Gray,
-                fontSize = 15.sp,
-                textDecoration = TextDecoration.Underline,
+                Logo(name = null)
+                Spacer(modifier = Modifier.height(5.dp))
+                Text(
+                    modifier = Modifier
+                        .clickable(onClick = {
+                            navController.navigate(ScreenRoutes.GameHistoryScreen.route)
+                        }),
+                    text = "Game History",
+                    color = Color.Gray,
+                    fontSize = 16.sp,
+                    textDecoration = TextDecoration.Underline,
 
-            )
+                    )
+            }
+
+            //A logout button
+            Button(
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary),
+                onClick = {
+                    coroutineScope.launch {
+                        googleAuthUIClient.signOut()
+                        navController.navigate(ScreenRoutes.LoginScreen.route)
+                    }
+                }) {
+                Text(text = "Logout")
+            }
 
         }
 
