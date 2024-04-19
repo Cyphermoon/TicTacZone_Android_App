@@ -42,8 +42,12 @@ import com.cyphermoon.tictaczone.presentation.game_flow.utils.resetAfterFullRoun
 import com.cyphermoon.tictaczone.presentation.game_flow.utils.resetBoard
 import com.cyphermoon.tictaczone.presentation.main.GameHistoryScreen
 import com.cyphermoon.tictaczone.redux.LocalPlayActions
+import com.cyphermoon.tictaczone.redux.PlayerProps
 import com.cyphermoon.tictaczone.redux.store
 import com.cyphermoon.tictaczone.redux.userActions
+import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.auth
 import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -66,22 +70,54 @@ fun AppNavigator() {
     }
 
     val coroutineScope = rememberCoroutineScope()
-
+    val user = googleAuthUiClient.getSignedInUser()
     val userRepository = UserRepository()
+    val firebaseAuth = Firebase.auth
 
-    // get custom user profile from firestore using signed in Id
-    LaunchedEffect(key1 = Unit) {
-        val user = googleAuthUiClient.getSignedInUser()
-        if (user != null) {
-            userRepository.listenForUserUpdates(userId = user.uid) { userProps ->
-                Log.v("UserProps", userProps.toString())
+    // Remember the AuthStateListener in a mutable state
+    val authStateListener = remember {
+        FirebaseAuth.AuthStateListener { firebaseAuth ->
+            val user = firebaseAuth.currentUser
+            if (user == null) {
+                // User is signed out
+                Log.d("FirebaseAuth", "User is signed out")
 
-                if (userProps != null) {
-                    store.dispatch(userActions.updateUser(userProps))
+                // reset redux state
+                store.dispatch(userActions.updateUser(PlayerProps()))
+            } else {
+                userRepository.listenForUserUpdates(userId = user.uid) { userProps ->
+                    Log.v("UserProps", userProps.toString())
+
+                    if (userProps != null) {
+                        store.dispatch(userActions.updateUser(userProps))
+                    }
                 }
             }
         }
     }
+
+    // Add the AuthStateListener when the composable is first composed
+    DisposableEffect(key1 = firebaseAuth) {
+        firebaseAuth.addAuthStateListener(authStateListener)
+        onDispose {
+            // Remove the AuthStateListener when the composable is disposed
+            firebaseAuth.removeAuthStateListener(authStateListener)
+        }
+    }
+
+    // get custom user profile from firestore using signed in Id
+//        LaunchedEffect(key1 = Unit, key2 = user?.uid) {
+//            if (user != null) {
+//                userRepository.listenForUserUpdates(userId = user.uid) { userProps ->
+//                    Log.v("UserProps", userProps.toString())
+//
+//                    if (userProps != null) {
+//                        store.dispatch(userActions.updateUser(userProps))
+//                    }
+//                }
+//            }
+//        }
+
 
     DisposableEffect(key1 = store) {
     val unsubscribe = store.subscribe {
@@ -114,13 +150,14 @@ fun AppNavigator() {
 
     Scaffold(
         bottomBar = {
-            BottomTabBarNavigation(
-                selectedIdx = selectedTab,
-                onTabSelected = { idx ->
-                    selectedTab = idx
-                },
-                navController = navController
-            )
+                BottomTabBarNavigation(
+                    selectedIdx = selectedTab,
+                    onTabSelected = { idx ->
+                        selectedTab = idx
+                    },
+                    navController = navController
+                )
+
         }
     ) {paddingValues ->
         Box(modifier = Modifier.padding(paddingValues)) {
